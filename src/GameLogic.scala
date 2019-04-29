@@ -1,10 +1,12 @@
+import java.io.{BufferedWriter, File, FileWriter}
+
 import board._
 
 import scala.collection.mutable
 import scala.io.Source
 
-object test extends App {
-
+class GameLogic {
+  // Checks if position is in game board
   def positionInBounds(x: Int, x_len: Int, y: Int, y_len: Int, board: mutable.MutableList[mutable.MutableList[Field]]): Boolean = {
     val boardLength = board.length
     if (boardLength > 0){
@@ -18,6 +20,7 @@ object test extends App {
     false
   }
 
+  // Moves from current position to chosen direction
   def move(max_size: Int)(move: Char, x: Int, x_len: Int, y: Int, y_len: Int):(Int, Int, Int, Int) = move match {
     case 'r' if y_len == max_size => (x, x_len, y+2, 1)
     case 'r' if x_len == max_size => (x, x_len, y+1, 1)
@@ -36,12 +39,14 @@ object test extends App {
     case 'u' => (x-2, max_size, y, y_len)
   }
 
+  // Writes to board position of player
   def movementWriter(writeData: Boolean, x: Int, x_len: Int, y: Int, y_len: Int, board: mutable.MutableList[mutable.MutableList
     [Field]]): Unit = {
     for(i <- 1 to x_len){ board(x+i-1)(y).setStep(writeData) }
     for(i <- 1 to y_len){ board(x)(y+i-1).setStep(writeData) }
   }
 
+  // Gives board state in string
   def boardData(board: mutable.MutableList[mutable.MutableList[Field]]): String = {
     val retData = StringBuilder.newBuilder
     for(row<-board){
@@ -53,6 +58,7 @@ object test extends App {
     retData.toString()
   }
 
+  // Loads new board from string
   def loadBoardFromString(boardStr: String): mutable.MutableList[mutable.MutableList[Field]] = {
     val curr_board = mutable.MutableList[mutable.MutableList[Field]]()
     curr_board += mutable.MutableList[Field]()
@@ -72,11 +78,13 @@ object test extends App {
     curr_board
   }
 
+  // Loads new board from file
   def loadBoardFromFile(fileName: String): mutable.MutableList[mutable.MutableList[Field]] = {
     val dataStr = Source.fromFile(fileName).mkString
     loadBoardFromString(dataStr)
   }
 
+  // Finds position of start on current board
   def findStartPosition(board: mutable.MutableList[mutable.MutableList[Field]]): (Int, Int, Int, Int) = {
     for(i <- board.indices){
       for(j <- board(i).indices){
@@ -88,7 +96,8 @@ object test extends App {
     throw new RuntimeException("No start found on board")
   }
 
-  // 1-Win; 2-Lose; 3-Continue
+  // Checks if player has won or lost from current position
+  // Returns: 1-Win; 2-Lose; 3-Continue;
   def afterMoveLogic(board: mutable.MutableList[mutable.MutableList[Field]], x: Int, x_len: Int, y: Int, y_len: Int):Int = {
     val length = x_len * y_len
     if(length == 1){
@@ -111,11 +120,16 @@ object test extends App {
     3
   }
 
+  // WIN MOVE CALCULATION LOGIC
+
+  // Check if player state on given board position was already played (prevents looping)
   def  moveExists(movesData: mutable.ListBuffer[((Int, Int, Int, Int), String)], move: (Int, Int, Int, Int)): Boolean = {
     for(elem <- movesData; if elem._1 == move) return true
     false
   }
 
+  // Calculates move in specific direction and updates lists of available moves and used moves
+  //Returns: 1-Win and win commands; 2-Lose and nothing; 3-Continue and nothing;
   def calculateOneMove(currMove: Char, usedMoves: mutable.ListBuffer[((Int, Int, Int, Int), String)], availableMoves: mutable.ListBuffer[((Int, Int, Int, Int), String)], pos: ((Int, Int, Int, Int), String), board: mutable.MutableList[mutable.MutableList[Field]]): (Int, String) = {
     val currNewPosition = move(2)(currMove, pos._1._1, pos._1._2, pos._1._3, pos._1._4)
     if(!positionInBounds(currNewPosition._1, currNewPosition._2, currNewPosition._3, currNewPosition._4, board)){
@@ -138,6 +152,7 @@ object test extends App {
     (currState, "")
   }
 
+  // Calculates sequence of moves that are needed for win on given board
   def calculateWinMove(board: mutable.MutableList[mutable.MutableList[Field]]): String = {
     val usedMoves = mutable.ListBuffer[((Int, Int, Int, Int), String)]()
     val availableMoves = mutable.ListBuffer[((Int, Int, Int, Int), String)]()
@@ -163,32 +178,14 @@ object test extends App {
     ""
   }
 
-  val moveSet = move(2)(_, _, _, _, _)
-
-  val test_moves_board = loadBoardFromFile("map1.txt")
-  val retMoves = calculateWinMove(test_moves_board)
-  println(retMoves)
-
-  val curr_board = loadBoardFromFile("map1.txt")
-
-  var position = findStartPosition(curr_board)
-  movementWriter(true, position._1, position._2, position._3, position._4, curr_board)
-  println(boardData(curr_board))
-  var state = 3
-  while (state == 3){
-    val temp = scala.io.StdIn.readLine()
-    movementWriter(false, position._1, position._2, position._3, position._4, curr_board)
-    position = moveSet(temp.charAt(0), position._1, position._2, position._3, position._4)
-    movementWriter(true, position._1, position._2, position._3, position._4, curr_board)
-    println(boardData(curr_board))
-    state = afterMoveLogic(curr_board, position._1, position._2, position._3, position._4)
+  def saveMovesToFile(fileName: String, movesData: String): Unit = {
+    val fileFullName = "./data/moves/" + fileName + ".txt"
+    val file = new File(fileFullName)
+    val bw = new BufferedWriter(new FileWriter(file))
+    for(move <- movesData){
+      bw.write(move + "\n")
+    }
+    bw.flush()
+    bw.close()
   }
-
-  if(state == 1){
-    println("Win, congratulation!")
-  }
-  else{
-    println("You lose!")
-  }
-
 }
