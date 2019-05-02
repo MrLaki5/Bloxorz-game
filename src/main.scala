@@ -211,11 +211,18 @@ object main extends App {
           var position = gameLogic.findStartPosition(curr_board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, curr_board)
           while(!isFinish){
+            val isOnEdge = mapEditing.isBlockableEdge(position._1, position._3, curr_board)
+            val isBlockEdge = mapEditing.isBlockOnEdge(position._1, position._3, curr_board)
             titlePrint()
             println(gameLogic.boardData(curr_board))
             println("Map editing:")
             println("l, r, u, d: Move edit pointer (l-left, d-down, r-right, u-up)")
-            println("1. Edit map with block operations")
+            if(isOnEdge) {
+              println("ab: Add block on edge of terrain (position of edit pointer)")
+            }
+            if(isBlockEdge){
+              println("rb: Remove block on edge of terrain (position of edit pointer)")
+            }
             println("2. Create new composite operation")
             println("3. Cancel")
             val temp = scala.io.StdIn.readLine()
@@ -225,7 +232,17 @@ object main extends App {
               gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, curr_board)
             }
             else{
-              isFinish = true
+              if(temp == "ab" && isOnEdge){
+                mapEditing.addBlock(position._1, position._3, curr_board)
+              }
+              else{
+                if(temp == "rb" && isBlockEdge){
+                  mapEditing.removeBlock(position._1, position._3, curr_board)
+                }
+                else{
+                  isFinish = true
+                }
+              }
             }
           }
 

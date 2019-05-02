@@ -9,13 +9,13 @@ class MapEditing {
   def move(direction: Char, x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     val res = direction match {
       case 'l' => (x, 1, y-1, 1)
-      case 'r' => (x, 1, y+2, 1)
+      case 'r' => (x, 1, y+1, 1)
       case 'u' => (x-1, 1, y, 1)
       case 'd' => (x+1, 1, y, 1)
       case _ => (-1, 1, -1, 1)
     }
     if(res._1>=0 && res._1<board.length){
-      if(res._2>=0 && res._2<board(0).length){
+      if(res._3>=0 && res._3<board.head.length){
         return res
       }
     }
@@ -75,6 +75,7 @@ class MapEditing {
     if(isBlockOnEdge(x,y, board)){
       board(x).remove(y)
       board(x).insert(y, new Empty())
+      board(x)(y).setStep(true)
     }
   }
 
@@ -82,6 +83,7 @@ class MapEditing {
     if(isBlockableEdge(x, y, board)){
       board(x).remove(y)
       board(x).insert(y, new Block())
+      board(x)(y).setStep(true)
     }
   }
 
