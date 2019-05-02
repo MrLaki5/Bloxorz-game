@@ -110,6 +110,7 @@ class MapEditing {
       board(old_st._1).insert(old_st._2, new Block())
       board(x).remove(y)
       board(x).insert(y, new Start())
+      board(x)(y).setStep(true)
     }
   }
 
@@ -119,7 +120,8 @@ class MapEditing {
       board(old_st._1).remove(old_st._2)
       board(old_st._1).insert(old_st._2, new Block())
       board(x).remove(y)
-      board(x).insert(y, new Start())
+      board(x).insert(y, new Finish())
+      board(x)(y).setStep(true)
     }
   }
 }

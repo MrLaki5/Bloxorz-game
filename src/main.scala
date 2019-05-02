@@ -227,9 +227,13 @@ object main extends App {
             }
             if(isBlock){
               println("cs: Change to special block (position of edit pointer)")
+              println("ps: Change to start (position of edit pointer)")
+              println("pf: Change to finish (position of edit pointer)")
             }
             if(isSpecial){
               println("cb: Change to normal block (position of edit pointer)")
+              println("ps: Change to start (position of edit pointer)")
+              println("pf: Change to finish (position of edit pointer)")
             }
             println("2. Create new composite operation")
             println("3. Cancel")
@@ -256,7 +260,17 @@ object main extends App {
                       mapEditing.removeSpecial(position._1, position._3, curr_board)
                     }
                     else{
-                      isFinish = true
+                      if(temp == "ps" && (isSpecial || isBlock)){
+                        mapEditing.changeStart(position._1, position._3, curr_board)
+                      }
+                      else{
+                        if(temp == "pf" && (isSpecial || isBlock)){
+                          mapEditing.changeFinish(position._1, position._3, curr_board)
+                        }
+                        else{
+                          isFinish = true
+                        }
+                      }
                     }
                   }
                 }
