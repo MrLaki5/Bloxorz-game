@@ -91,6 +91,7 @@ class MapEditing {
     if(board(x)(y).getSign() == 'O'){
       board(x).remove(y)
       board(x).insert(y, new Plate())
+      board(x)(y).setStep(true)
     }
   }
 
@@ -98,6 +99,7 @@ class MapEditing {
     if(board(x)(y).getSign() == '.'){
       board(x).remove(y)
       board(x).insert(y, new Block())
+      board(x)(y).setStep(true)
     }
   }
 

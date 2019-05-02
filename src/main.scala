@@ -213,6 +213,8 @@ object main extends App {
           while(!isFinish){
             val isOnEdge = mapEditing.isBlockableEdge(position._1, position._3, curr_board)
             val isBlockEdge = mapEditing.isBlockOnEdge(position._1, position._3, curr_board)
+            val isSpecial = curr_board(position._1)(position._3).getSign() == '.'
+            val isBlock = curr_board(position._1)(position._3).getSign() == 'O'
             titlePrint()
             println(gameLogic.boardData(curr_board))
             println("Map editing:")
@@ -222,6 +224,12 @@ object main extends App {
             }
             if(isBlockEdge){
               println("rb: Remove block on edge of terrain (position of edit pointer)")
+            }
+            if(isBlock){
+              println("cs: Change to special block (position of edit pointer)")
+            }
+            if(isSpecial){
+              println("cb: Change to normal block (position of edit pointer)")
             }
             println("2. Create new composite operation")
             println("3. Cancel")
@@ -240,7 +248,17 @@ object main extends App {
                   mapEditing.removeBlock(position._1, position._3, curr_board)
                 }
                 else{
-                  isFinish = true
+                  if(temp == "cs" && isBlock){
+                    mapEditing.addSpecial(position._1, position._3, curr_board)
+                  }
+                  else{
+                    if(temp == "cb" && isSpecial){
+                      mapEditing.removeSpecial(position._1, position._3, curr_board)
+                    }
+                    else{
+                      isFinish = true
+                    }
+                  }
                 }
               }
             }
