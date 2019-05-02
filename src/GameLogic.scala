@@ -5,9 +5,13 @@ import board._
 import scala.collection.mutable
 import scala.io.Source
 
+
 class GameLogic {
+
+  type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
+
   // Checks if position is in game board
-  def positionInBounds(x: Int, x_len: Int, y: Int, y_len: Int, board: mutable.MutableList[mutable.MutableList[Field]]): Boolean = {
+  def positionInBounds(x: Int, x_len: Int, y: Int, y_len: Int, board: BoardType): Boolean = {
     val boardLength = board.length
     if (boardLength > 0){
       val boardFieldLength = board.head.length
@@ -40,14 +44,13 @@ class GameLogic {
   }
 
   // Writes to board position of player
-  def movementWriter(writeData: Boolean, x: Int, x_len: Int, y: Int, y_len: Int, board: mutable.MutableList[mutable.MutableList
-    [Field]]): Unit = {
+  def movementWriter(writeData: Boolean, x: Int, x_len: Int, y: Int, y_len: Int, board: BoardType): Unit = {
     for(i <- 1 to x_len){ board(x+i-1)(y).setStep(writeData) }
     for(i <- 1 to y_len){ board(x)(y+i-1).setStep(writeData) }
   }
 
   // Gives board state in string
-  def boardData(board: mutable.MutableList[mutable.MutableList[Field]]): String = {
+  def boardData(board: BoardType): String = {
     val retData = StringBuilder.newBuilder
     for(row<-board){
       for(data<-row) {
@@ -59,9 +62,9 @@ class GameLogic {
   }
 
   // Loads new board from string
-  def loadBoardFromString(boardStr: String): mutable.MutableList[mutable.MutableList[Field]] = {
-    val curr_board = mutable.MutableList[mutable.MutableList[Field]]()
-    curr_board += mutable.MutableList[Field]()
+  def loadBoardFromString(boardStr: String): BoardType = {
+    val curr_board = mutable.ListBuffer[mutable.ListBuffer[Field]]()
+    curr_board += mutable.ListBuffer[Field]()
     for(char <- boardStr){
       char match {
         case 'o' => curr_board.last += new Block() //From pdf char
@@ -71,7 +74,7 @@ class GameLogic {
         case 'S' => curr_board.last += new Start()
         case 'T' => curr_board.last += new Finish()
         case '.' => curr_board.last += new Plate()
-        case '\n' => curr_board += mutable.MutableList[Field]()
+        case '\n' => curr_board += mutable.ListBuffer[Field]()
         case _ =>
       }
     }
@@ -79,13 +82,13 @@ class GameLogic {
   }
 
   // Loads new board from file
-  def loadBoardFromFile(fileName: String): mutable.MutableList[mutable.MutableList[Field]] = {
+  def loadBoardFromFile(fileName: String): BoardType = {
     val dataStr = Source.fromFile(fileName).mkString
     loadBoardFromString(dataStr)
   }
 
   // Finds position of start on current board
-  def findStartPosition(board: mutable.MutableList[mutable.MutableList[Field]]): (Int, Int, Int, Int) = {
+  def findStartPosition(board: BoardType): (Int, Int, Int, Int) = {
     for(i <- board.indices){
       for(j <- board(i).indices){
         if (board(i)(j).getSign() == 'S'){
@@ -98,7 +101,7 @@ class GameLogic {
 
   // Checks if player has won or lost from current position
   // Returns: 1-Win; 2-Lose; 3-Continue;
-  def afterMoveLogic(board: mutable.MutableList[mutable.MutableList[Field]], x: Int, x_len: Int, y: Int, y_len: Int):Int = {
+  def afterMoveLogic(board: BoardType, x: Int, x_len: Int, y: Int, y_len: Int):Int = {
     val length = x_len * y_len
     if(length == 1){
       if(board(x)(y).isWin()){
@@ -130,7 +133,7 @@ class GameLogic {
 
   // Calculates move in specific direction and updates lists of available moves and used moves
   //Returns: 1-Win and win commands; 2-Lose and nothing; 3-Continue and nothing;
-  def calculateOneMove(currMove: Char, usedMoves: mutable.ListBuffer[((Int, Int, Int, Int), String)], availableMoves: mutable.ListBuffer[((Int, Int, Int, Int), String)], pos: ((Int, Int, Int, Int), String), board: mutable.MutableList[mutable.MutableList[Field]]): (Int, String) = {
+  def calculateOneMove(currMove: Char, usedMoves: mutable.ListBuffer[((Int, Int, Int, Int), String)], availableMoves: mutable.ListBuffer[((Int, Int, Int, Int), String)], pos: ((Int, Int, Int, Int), String), board: BoardType): (Int, String) = {
     val currNewPosition = move(2)(currMove, pos._1._1, pos._1._2, pos._1._3, pos._1._4)
     if(!positionInBounds(currNewPosition._1, currNewPosition._2, currNewPosition._3, currNewPosition._4, board)){
       return (2, "")
@@ -153,7 +156,7 @@ class GameLogic {
   }
 
   // Calculates sequence of moves that are needed for win on given board
-  def calculateWinMove(board: mutable.MutableList[mutable.MutableList[Field]]): String = {
+  def calculateWinMove(board: BoardType): String = {
     val usedMoves = mutable.ListBuffer[((Int, Int, Int, Int), String)]()
     val availableMoves = mutable.ListBuffer[((Int, Int, Int, Int), String)]()
     val currPosition = findStartPosition(board)

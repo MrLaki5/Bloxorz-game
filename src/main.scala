@@ -20,6 +20,7 @@ object main extends App {
   }
 
   val gameLogic = new GameLogic()
+  val mapEditing = new MapEditing()
   val moveSet = gameLogic.move(2)(_, _, _, _, _)
 
   var isExit = false
@@ -182,7 +183,58 @@ object main extends App {
         scala.io.StdIn.readLine()
       }
       else {
-        isExit = true
+        if(menuOption.charAt(0) == '3'){
+          var isMapOk = false
+          var mapName = ""
+          while(!isMapOk) {
+            titlePrint()
+            println("Available maps:")
+            val maps = getListOfFiles("./data/maps")
+            var cnt = 0
+            for (map <- maps) {
+              cnt += 1
+              println(cnt + ": " + map.getName)
+            }
+            println("Choose map:")
+            val inputNum = scala.io.StdIn.readLine()
+            try {
+              val mapNum = Integer.parseInt(inputNum)
+              mapName = maps(mapNum-1).getAbsolutePath
+              isMapOk = true
+            }
+            catch {
+              case _: Throwable =>
+            }
+          }
+          val curr_board = gameLogic.loadBoardFromFile(mapName)
+          var isFinish = false
+          var position = gameLogic.findStartPosition(curr_board)
+          gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, curr_board)
+          while(!isFinish){
+            titlePrint()
+            println(gameLogic.boardData(curr_board))
+            println("Map editing:")
+            println("l, r, u, d: Move edit pointer (l-left, d-down, r-right, u-up)")
+            println("1. Edit map with block operations")
+            println("2. Create new composite operation")
+            println("3. Cancel")
+            val temp = scala.io.StdIn.readLine()
+            if(temp == "l" || temp == "r" || temp == "u" || temp == "d"){
+              gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, curr_board)
+              position = mapEditing.move(temp.charAt(0), position._1, position._3, curr_board)
+              gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, curr_board)
+            }
+            else{
+              isFinish = true
+            }
+          }
+
+        }
+        else{
+          if(menuOption.charAt(0) == '4'){
+            isExit = true
+          }
+        }
       }
     }
   }
