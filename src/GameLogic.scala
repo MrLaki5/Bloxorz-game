@@ -182,7 +182,7 @@ class GameLogic {
   }
 
   def saveMovesToFile(fileName: String, movesData: String): Unit = {
-    val fileFullName = "./data/moves/" + fileName + ".txt"
+    val fileFullName = fileName + ".txt"
     val file = new File(fileFullName)
     val bw = new BufferedWriter(new FileWriter(file))
     for(move <- movesData){
