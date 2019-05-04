@@ -17,6 +17,7 @@ object mainGUI extends SimpleSwingApplication {
   var position: (Int, Int, Int, Int) = _
   val moveBuffer = mutable.ListBuffer[String]()
 
+
   def top= new MainFrame {
     title = "Bloxorz-game"
     preferredSize = new Dimension(640, 480)
@@ -221,7 +222,19 @@ object mainGUI extends SimpleSwingApplication {
             layout(gameFinishGrid) = BorderPanel.Position.South
           }
         }
-      case ButtonClicked(component) if component == gameFinishButton || component == gameQuitButton || component == moveSequenceBackButton=>
+      case ButtonClicked(component) if component == gameFinishButton || component == moveSequenceBackButton=>
+        contents = mainMenuGrid
+        mainMenuGrid.repaint()
+      case ButtonClicked(component) if component == gameQuitButton =>
+        var threadWasAlive = false
+        synchronized(threadSemaphore){
+          threadWasAlive = threadIsActive
+          threadIsActive = false
+          0
+        }
+        if (threadWasAlive){
+          moveThread.join()
+        }
         contents = mainMenuGrid
         mainMenuGrid.repaint()
       case ButtonClicked(component) if component == gameFileButton =>
@@ -238,8 +251,11 @@ object mainGUI extends SimpleSwingApplication {
               case _ =>
             }
           }
-          println("Current thread:" + Thread.currentThread())
           moveRun.setFields(canvas, setState, activateButtons)
+          synchronized(threadSemaphore){
+            threadIsActive = true
+            0
+          }
           gameLeftButton.enabled = false
           gameRightButton.enabled = false
           gameUpButton.enabled = false
@@ -304,11 +320,25 @@ object mainGUI extends SimpleSwingApplication {
       gameFileButton.enabled = true
     }
 
+    override def closeOperation(): Unit = {
+      var threadWasAlive = false
+      synchronized(threadSemaphore){
+        threadWasAlive = threadIsActive
+        threadIsActive = false
+        0
+      }
+      if (threadWasAlive){
+        moveThread.join()
+      }
+      super.closeOperation()
+    }
+
   }
 
   val moveRun = new moveRunnable()
   var moveThread: Thread = null
   var threadIsActive = false
+  val threadSemaphore = "threadSem"
 
   class moveRunnable extends Runnable{
     var localCanvas: BoardCanvas = _
@@ -321,11 +351,21 @@ object mainGUI extends SimpleSwingApplication {
     }
     override def run(): Unit = {
       while(moveBuffer.nonEmpty){
+        var isActive: Boolean = true
+        synchronized(threadSemaphore){
+          isActive = threadIsActive
+          0
+        }
+        if(!isActive){
+          moveBuffer.clear()
+          localAfterFun()
+          println("Thread finished by quit")
+          return
+        }
         val tempCommand = moveBuffer.remove(0)
         gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
         position = gameLogic.move(2)(tempCommand.charAt(0), position._1, position._2, position._3, position._4)
         gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
-        println("Current thread:" + Thread.currentThread())
         localCanvas.setBoard(board)
         val state = gameLogic.afterMoveLogic(board, position._1, position._2, position._3, position._4)
         localFinFun(state)
@@ -335,6 +375,7 @@ object mainGUI extends SimpleSwingApplication {
       }
       localAfterFun()
       threadIsActive = false
+      println("Thread finished normal")
     }
   }
 
