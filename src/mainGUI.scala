@@ -160,6 +160,98 @@ object mainGUI extends SimpleSwingApplication {
     }
     listenTo(moveSequenceGenerateButton)
     listenTo(moveSequenceBackButton)
+    // Create map items
+    val newMapLeftButton = new Button {
+      text = "Left"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapRightButton = new Button {
+      text = "Right"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapUpButton = new Button {
+      text = "Up"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapDownButton = new Button {
+      text = "Down"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapAddBlockButton = new Button {
+      text = "Add block"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapRemoveBlockButton = new Button {
+      text = "Rm block"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapAddSpecialButton = new Button {
+      text = "Add special"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapRemoveSpecialButton = new Button {
+      text = "Rm special"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapPutStartButton = new Button {
+      text = "Put start"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapPutFinishButton = new Button {
+      text = "Put finish"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    //TODO add left operations
+    val newMapCancelButton = new Button {
+      text = "Cancel"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapButtonsGrid =  new GridPanel(2, 6) {
+      contents += newMapLeftButton
+      contents += newMapRightButton
+      contents += newMapUpButton
+      contents += newMapDownButton
+      contents += newMapAddBlockButton
+      contents += newMapRemoveBlockButton
+      contents += newMapAddSpecialButton
+      contents += newMapRemoveSpecialButton
+      contents += newMapPutStartButton
+      contents += newMapPutFinishButton
+      contents += newMapCancelButton
+    }
+    listenTo(newMapLeftButton)
+    listenTo(newMapRightButton)
+    listenTo(newMapUpButton)
+    listenTo(newMapDownButton)
+    listenTo(newMapAddBlockButton)
+    listenTo(newMapRemoveBlockButton)
+    listenTo(newMapAddSpecialButton)
+    listenTo(newMapRemoveSpecialButton)
+    listenTo(newMapPutStartButton)
+    listenTo(newMapPutFinishButton)
+    listenTo(newMapCancelButton)
 
     contents = mainMenuGrid
 
@@ -222,7 +314,7 @@ object mainGUI extends SimpleSwingApplication {
             layout(gameFinishGrid) = BorderPanel.Position.South
           }
         }
-      case ButtonClicked(component) if component == gameFinishButton || component == moveSequenceBackButton=>
+      case ButtonClicked(component) if component == gameFinishButton || component == moveSequenceBackButton || component == newMapCancelButton=>
         contents = mainMenuGrid
         mainMenuGrid.repaint()
       case ButtonClicked(component) if component == gameQuitButton =>
@@ -291,6 +383,71 @@ object mainGUI extends SimpleSwingApplication {
             moveSequenceStatus.text = "There is no win sequence."
           }
         }
+      case ButtonClicked(comment) if comment == mainMenuCreateMapButton =>
+        val fileName = chooseFile()
+        if(fileName != ""){
+          try{
+            board = gameLogic.loadBoardFromFile(fileName)
+            position = gameLogic.findStartPosition(board)
+            gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+            mapEditActivateButtons()
+            contents = new BorderPanel {
+              layout(canvas) = BorderPanel.Position.Center
+              layout(newMapButtonsGrid) = BorderPanel.Position.South
+            }
+            canvas.setBoard(board)
+          }
+          catch {
+            case e: Throwable => println(e)
+          }
+        }
+      case ButtonClicked(component) if component == newMapLeftButton || component == newMapRightButton || component == newMapDownButton || component == newMapUpButton =>
+        var moveCh = 'a'
+        if (component==newMapLeftButton){
+          moveCh = 'l'
+        }
+        else{
+          if (component==newMapRightButton){
+            moveCh = 'r'
+          }
+          else{
+            if(component==newMapDownButton){
+              moveCh = 'd'
+            }
+            else{
+              moveCh = 'u'
+            }
+          }
+        }
+        gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
+        position = mapEditing.move(moveCh, position._1, position._3, board)
+        gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+        canvas.setBoard(board)
+        mapEditActivateButtons()
+      case ButtonClicked(component) if component == newMapAddBlockButton =>
+        mapEditing.addBlock(position._1, position._3, board)
+        canvas.setBoard(board)
+        mapEditActivateButtons()
+      case ButtonClicked(component) if component == newMapRemoveBlockButton =>
+        mapEditing.removeBlock(position._1, position._3, board)
+        canvas.setBoard(board)
+        mapEditActivateButtons()
+      case ButtonClicked(component) if component == newMapAddSpecialButton =>
+        mapEditing.addSpecial(position._1, position._3, board)
+        canvas.setBoard(board)
+        mapEditActivateButtons()
+      case ButtonClicked(component) if component == newMapRemoveSpecialButton =>
+        mapEditing.removeSpecial(position._1, position._3, board)
+        canvas.setBoard(board)
+        mapEditActivateButtons()
+      case ButtonClicked(component) if component == newMapPutStartButton =>
+        mapEditing.changeStart(position._1, position._3, board)
+        canvas.setBoard(board)
+        mapEditActivateButtons()
+      case ButtonClicked(component) if component == newMapPutFinishButton =>
+        mapEditing.changeFinish(position._1, position._3, board)
+        canvas.setBoard(board)
+        mapEditActivateButtons()
     }
 
     def setState(state: Int): Unit = {
@@ -333,6 +490,18 @@ object mainGUI extends SimpleSwingApplication {
       super.closeOperation()
     }
 
+    def mapEditActivateButtons(): Unit = {
+      val isOnEdge = mapEditing.isBlockableEdge(position._1, position._3, board)
+      val isBlockEdge = mapEditing.isBlockOnEdge(position._1, position._3, board)
+      val isSpecial = board(position._1)(position._3).getSign() == '.'
+      val isBlock = board(position._1)(position._3).getSign() == 'O'
+      newMapAddBlockButton.enabled = isOnEdge
+      newMapRemoveBlockButton.enabled = isBlockEdge
+      newMapAddSpecialButton.enabled = isBlock
+      newMapRemoveSpecialButton.enabled = isSpecial
+      newMapPutStartButton.enabled = isBlock || isSpecial
+      newMapPutFinishButton.enabled = isBlock || isSpecial
+    }
   }
 
   val moveRun = new moveRunnable()
