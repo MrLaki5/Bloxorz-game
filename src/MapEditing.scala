@@ -124,4 +124,37 @@ class MapEditing {
       board(x)(y).setStep(true)
     }
   }
+
+  def inversion(board: BoardType): Unit = {
+    val old_st = findSpecificPosition(board, 'S')
+    val old_fin = findSpecificPosition(board, 'T')
+    board(old_st._1).remove(old_st._2)
+    board(old_st._1).insert(old_st._2, new Finish())
+    board(old_fin._1).remove(old_fin._2)
+    board(old_fin._1).insert(old_fin._2, new Start())
+  }
+
+  def removeAllSpecial(board: BoardType): Unit = {
+    for(i <- board.indices) {
+      for (j <- board(i).indices) {
+        if (board(i)(j).getSign() == '.') {
+          board(i).remove(j)
+          board(i).insert(j, new Block())
+        }
+      }
+    }
+  }
+
+  def removeNSpecial(x: Int, y: Int, n: Int, board: BoardType): Unit = {
+    for(i <- board.indices) {
+      for (j <- board(i).indices) {
+        if (board(i)(j).getSign() == '.') {
+          if(((i-n)<=x && (i+n)>=x) && ((j-n)<=y && (j+n)>=y)){
+            board(i).remove(j)
+            board(i).insert(j, new Block())
+          }
+        }
+      }
+    }
+  }
 }

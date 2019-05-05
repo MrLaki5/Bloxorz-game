@@ -44,9 +44,16 @@ class GameLogic {
   }
 
   // Writes to board position of player
-  def movementWriter(writeData: Boolean, x: Int, x_len: Int, y: Int, y_len: Int, board: BoardType): Unit = {
-    for(i <- 1 to x_len){ board(x+i-1)(y).setStep(writeData) }
-    for(i <- 1 to y_len){ board(x)(y+i-1).setStep(writeData) }
+  def movementWriter(writeData: Boolean, x: Int, x_len: Int, y: Int, y_len: Int, board: BoardType): Boolean = {
+    try{
+      for(i <- 1 to x_len){ board(x+i-1)(y).setStep(writeData) }
+      for(i <- 1 to y_len){ board(x)(y+i-1).setStep(writeData) }
+      return true
+    }
+    catch{
+      case _:Throwable =>
+    }
+    false
   }
 
   // Gives board state in string
@@ -138,7 +145,11 @@ class GameLogic {
     if(!positionInBounds(currNewPosition._1, currNewPosition._2, currNewPosition._3, currNewPosition._4, board)){
       return (2, "")
     }
-    movementWriter(true, currNewPosition._1, currNewPosition._2, currNewPosition._3, currNewPosition._4, board)
+    val isOkMove = movementWriter(true, currNewPosition._1, currNewPosition._2, currNewPosition._3, currNewPosition._4, board)
+    if(!isOkMove){
+      movementWriter(false, currNewPosition._1, currNewPosition._2, currNewPosition._3, currNewPosition._4, board)
+      return (2, "")
+    }
     val currState = afterMoveLogic(board, currNewPosition._1, currNewPosition._2, currNewPosition._3, currNewPosition._4)
     movementWriter(false, currNewPosition._1, currNewPosition._2, currNewPosition._3, currNewPosition._4, board)
     if (currState == 3){
@@ -188,6 +199,15 @@ class GameLogic {
     for(move <- movesData){
       bw.write(move + "\n")
     }
+    bw.flush()
+    bw.close()
+  }
+
+  def saveBoardToFile(fileName: String, board: BoardType): Unit = {
+    val fileFullName = fileName + ".txt"
+    val file = new File(fileFullName)
+    val bw = new BufferedWriter(new FileWriter(file))
+    bw.write(boardData(board))
     bw.flush()
     bw.close()
   }
