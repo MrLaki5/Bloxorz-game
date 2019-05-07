@@ -148,13 +148,16 @@ class MapEditing {
     }
   }
 
-  def removeNSpecial(x: Int, y: Int, n: Int, board: BoardType): Unit = {
+  def filter(x: Int, y: Int, n: Int, board: BoardType): Unit = {
     for(i <- board.indices) {
       for (j <- board(i).indices) {
         if (board(i)(j).getSign() == '.') {
           if(((i-n)<=x && (i+n)>=x) && ((j-n)<=y && (j+n)>=y)){
-            board(i).remove(j)
-            board(i).insert(j, new Block())
+            if(i!=x || j!=y) {
+              board(x).remove(y)
+              board(x).insert(y, new Block())
+              return
+            }
           }
         }
       }

@@ -52,13 +52,12 @@ class SequenceOp(val operationName: String, val operationList: mutable.ListBuffe
           mapEditing.removeAllSpecial(board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "filter" =>
-          mapEditing.removeNSpecial(position._1, position._3, argumentsList(argumentNum) ,board)
+          mapEditing.filter(position._1, position._3, argumentsList(argumentNum) ,board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
           argumentNum += 1
         case _ =>
           for(sOp <- otherSOp){
             if(sOp.checkName(operation)){
-              println(sOp.operationName)
               position = sOp.doOperation(position, board, otherSOp)
             }
           }

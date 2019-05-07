@@ -242,7 +242,7 @@ object mainGUI extends SimpleSwingApplication {
       borderPainted = true
     }
     val newMapRemoveNSpecialButton = new Button {
-      text = "Rm N special"
+      text = "Filter"
       foreground = Color.blue
       background = Color.red
       borderPainted = true
@@ -639,12 +639,13 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == newMapRmNRemoveButton =>
         try{
           val num = Integer.parseInt(newMapRmNNumber.text)
-          mapEditing.removeNSpecial(position._1, position._3, num, board)
+          mapEditing.filter(position._1, position._3, num, board)
           contents = new BorderPanel {
             layout(canvas) = BorderPanel.Position.Center
             layout(newMapButtonsGrid) = BorderPanel.Position.South
           }
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+          mapEditActivateButtons()
           canvas.setBoard(board)
         }
         catch{
@@ -664,6 +665,7 @@ object mainGUI extends SimpleSwingApplication {
         opSeqAllPossibleItemsList = new swing.ListView[String](allOperations)
         opSeqChosenItemsList = new swing.ListView[String](chosenOperations)
         opSeqOperationName.text = ""
+        opSeqOperationArg.text = ""
         opSeqGrid =  new GridPanel(1, 3) {
           contents += opSeqAllPossibleItemsList
           contents += opSeqButtonsGrid
@@ -761,6 +763,7 @@ object mainGUI extends SimpleSwingApplication {
             layout(canvas) = BorderPanel.Position.Center
             layout(newMapButtonsGrid) = BorderPanel.Position.South
           }
+          mapEditActivateButtons()
           canvas.setBoard(board)
         }
     }
@@ -816,6 +819,7 @@ object mainGUI extends SimpleSwingApplication {
       newMapRemoveSpecialButton.enabled = isSpecial
       newMapPutStartButton.enabled = isBlock || isSpecial
       newMapPutFinishButton.enabled = isBlock || isSpecial
+      newMapRemoveNSpecialButton.enabled = isSpecial
     }
   }
 
