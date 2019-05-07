@@ -19,15 +19,17 @@ object mainGUI extends SimpleSwingApplication {
   var position: (Int, Int, Int, Int) = _
   val moveBuffer = mutable.ListBuffer[String]()
   val allOperations = mutable.ListBuffer[String]()
-  val chosenOperations = mutable.ListBuffer[String]()
+  var chosenOperations = mutable.ListBuffer[String]()
   val sequenceOperations = mutable.ListBuffer[SequenceOp]()
-  val argumentsOperations = mutable.ListBuffer[Int]()
+  var argumentsOperations = mutable.ListBuffer[Int]()
 
 
   def top= new MainFrame {
     title = "Bloxorz-game"
     preferredSize = new Dimension(640, 480)
     resizable = false
+    peer.setSize(new Dimension(640, 480))
+    peer.setLocationRelativeTo(null)
 
     // Main menu items
     val mainMenuStartGameButton = new Button {
@@ -660,6 +662,7 @@ object mainGUI extends SimpleSwingApplication {
         chosenOperations.clear()
         argumentsOperations.clear()
         opSeqAllPossibleItemsList = new swing.ListView[String](allOperations)
+        opSeqChosenItemsList = new swing.ListView[String](chosenOperations)
         opSeqOperationName.text = ""
         opSeqGrid =  new GridPanel(1, 3) {
           contents += opSeqAllPossibleItemsList
@@ -731,6 +734,8 @@ object mainGUI extends SimpleSwingApplication {
         if(!opSeqOperationName.text.isEmpty && chosenOperations.size > 1){
           if(!checkNameExists(opSeqOperationName.text)){
             val sOpj = new SequenceOp(opSeqOperationName.text, chosenOperations, argumentsOperations)
+            chosenOperations = new mutable.ListBuffer[String]()
+            argumentsOperations = new mutable.ListBuffer[Int]()
             sequenceOperations += sOpj
             allOperations += opSeqOperationName.text
             contents = new BorderPanel {

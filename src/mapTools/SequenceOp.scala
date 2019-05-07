@@ -58,6 +58,7 @@ class SequenceOp(val operationName: String, val operationList: mutable.ListBuffe
         case _ =>
           for(sOp <- otherSOp){
             if(sOp.checkName(operation)){
+              println(sOp.operationName)
               position = sOp.doOperation(position, board, otherSOp)
             }
           }
