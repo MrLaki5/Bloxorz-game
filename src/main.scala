@@ -1,5 +1,8 @@
 import java.io.File
 
+import gameTools.GameLogic
+import mapTools.MapEditing
+
 import scala.collection.mutable
 import scala.io.Source
 

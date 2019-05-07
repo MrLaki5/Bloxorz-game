@@ -1,3 +1,5 @@
+package gameTools
+
 import java.io.{BufferedWriter, File, FileWriter}
 
 import board._

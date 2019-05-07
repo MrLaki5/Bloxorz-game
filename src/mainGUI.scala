@@ -1,7 +1,9 @@
 import java.awt.Color
 
 import board.Field
+import gameTools.GameLogic
 import javax.swing.{JFileChooser, JFrame}
+import mapTools.{MapEditing, SequenceOp}
 
 import scala.collection.mutable
 import scala.io.Source
@@ -16,6 +18,9 @@ object mainGUI extends SimpleSwingApplication {
   var board: BoardType = _
   var position: (Int, Int, Int, Int) = _
   val moveBuffer = mutable.ListBuffer[String]()
+  val allOperations = mutable.ListBuffer[String]()
+  val chosenOperations = mutable.ListBuffer[String]()
+  val sequenceOperations = mutable.ListBuffer[SequenceOp]()
 
 
   def top= new MainFrame {
@@ -239,6 +244,12 @@ object mainGUI extends SimpleSwingApplication {
       background = Color.red
       borderPainted = true
     }
+    val newMapCreateSequenceButton = new Button {
+      text = "Mk sequence"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
     //TODO add left operations
     val newMapSaveButton = new Button {
       text = "Save"
@@ -252,7 +263,7 @@ object mainGUI extends SimpleSwingApplication {
       background = Color.red
       borderPainted = true
     }
-    val newMapButtonsGrid =  new GridPanel(2, 6) {
+    val newMapButtonsGrid =  new GridPanel(3, 6) {
       contents += newMapLeftButton
       contents += newMapRightButton
       contents += newMapUpButton
@@ -266,6 +277,7 @@ object mainGUI extends SimpleSwingApplication {
       contents += newMapInvertButton
       contents += newMapRemoveAllSpecialButton
       contents += newMapRemoveNSpecialButton
+      contents += newMapCreateSequenceButton
       contents += newMapSaveButton
       contents += newMapCancelButton
     }
@@ -284,6 +296,7 @@ object mainGUI extends SimpleSwingApplication {
     listenTo(newMapRemoveNSpecialButton)
     listenTo(newMapRemoveAllSpecialButton)
     listenTo(newMapSaveButton)
+    listenTo(newMapCreateSequenceButton)
     // Remove N special menu
     val newMapRmNRemoveButton = new Button {
       text = "Remove"
@@ -309,8 +322,63 @@ object mainGUI extends SimpleSwingApplication {
     listenTo(newMapRmNRemoveButton)
     listenTo(newMapRmNCancelButton)
     // Create operation sequence items
-    val opSeqAllPossibleItemsList = new swing.ListView[String]()
-    //opSeqAllPossibleItemsList.selection.
+    allOperations += "move left"
+    allOperations += "move right"
+    allOperations += "move down"
+    allOperations += "move up"
+    allOperations += "add block"
+    allOperations += "rm block"
+    allOperations += "add special"
+    allOperations += "rm special"
+    allOperations += "put finish"
+    allOperations += "put start"
+    allOperations += "invert"
+    allOperations += "rm all special"
+    allOperations += "filter"
+    var opSeqAllPossibleItemsList = new swing.ListView[String](allOperations)
+    var opSeqChosenItemsList = new swing.ListView[String](chosenOperations)
+    val opSeqOperationName = new TextField()
+    val opSeqAddOpButton = new Button {
+      text = ">>"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val opSeqRemoveOpButton = new Button {
+      text = "<<"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val opSeqSaveOpButton = new Button {
+      text = "Save"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val opSeqCancelButton = new Button {
+      text = "Cancel"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val opSeqButtonsGrid = new GridPanel(6, 1){
+      contents += new Label("Operation name:")
+      contents += opSeqOperationName
+      contents += opSeqAddOpButton
+      contents += opSeqRemoveOpButton
+      contents += opSeqSaveOpButton
+      contents += opSeqCancelButton
+    }
+    var opSeqGrid =  new GridPanel(1, 3) {
+      contents += opSeqAllPossibleItemsList
+      contents += opSeqButtonsGrid
+      contents += opSeqChosenItemsList
+    }
+    listenTo(opSeqAddOpButton)
+    listenTo(opSeqRemoveOpButton)
+    listenTo(opSeqSaveOpButton)
+    listenTo(opSeqCancelButton)
 
     contents = mainMenuGrid
 
@@ -556,6 +624,59 @@ object mainGUI extends SimpleSwingApplication {
           contents = mainMenuGrid
           mainMenuGrid.repaint()
         }
+      case ButtonClicked(component) if component == newMapCreateSequenceButton =>
+        chosenOperations.clear()
+        opSeqAllPossibleItemsList = new swing.ListView[String](allOperations)
+        //opSeqAllPossibleItemsList.selectIndices(-1)
+        opSeqOperationName.text = ""
+        opSeqGrid =  new GridPanel(1, 3) {
+          contents += opSeqAllPossibleItemsList
+          contents += opSeqButtonsGrid
+          contents += opSeqChosenItemsList
+        }
+        contents = opSeqGrid
+        opSeqGrid.repaint()
+      case ButtonClicked(component) if component == opSeqCancelButton =>
+        contents = new BorderPanel {
+          layout(canvas) = BorderPanel.Position.Center
+          layout(newMapButtonsGrid) = BorderPanel.Position.South
+        }
+      case ButtonClicked(component) if component == opSeqAddOpButton =>
+        chosenOperations += allOperations(opSeqAllPossibleItemsList.selection.anchorIndex)
+        opSeqChosenItemsList = new swing.ListView[String](chosenOperations)
+        opSeqGrid =  new GridPanel(1, 3) {
+          contents += opSeqAllPossibleItemsList
+          contents += opSeqButtonsGrid
+          contents += opSeqChosenItemsList
+        }
+        contents = opSeqGrid
+        opSeqAllPossibleItemsList.selectIndices(-1)
+        opSeqGrid.repaint()
+      case ButtonClicked(component) if component == opSeqRemoveOpButton =>
+        if(opSeqChosenItemsList.selection.anchorIndex >= 0 && opSeqChosenItemsList.selection.anchorIndex < chosenOperations.size){
+          chosenOperations.remove(opSeqChosenItemsList.selection.anchorIndex)
+          opSeqChosenItemsList = new swing.ListView[String](chosenOperations)
+          opSeqGrid =  new GridPanel(1, 3) {
+            contents += opSeqAllPossibleItemsList
+            contents += opSeqButtonsGrid
+            contents += opSeqChosenItemsList
+          }
+          contents = opSeqGrid
+          opSeqAllPossibleItemsList.selectIndices(-1)
+          opSeqGrid.repaint()
+        }
+      case ButtonClicked(component) if component == opSeqSaveOpButton =>
+        if(!opSeqOperationName.text.isEmpty && chosenOperations.size > 1){
+          if(!checkNameExists(opSeqOperationName.text)){
+            val sOpj = new SequenceOp(opSeqOperationName.text, chosenOperations, mutable.ListBuffer[Int]())
+            sequenceOperations += sOpj
+            allOperations += opSeqOperationName.text
+            contents = new BorderPanel {
+              layout(canvas) = BorderPanel.Position.Center
+              layout(newMapButtonsGrid) = BorderPanel.Position.South
+            }
+          }
+        }
     }
 
     def setState(state: Int): Unit = {
@@ -679,5 +800,13 @@ object mainGUI extends SimpleSwingApplication {
       return file.getAbsolutePath
     }
     ""
+  }
+
+  def checkNameExists(wantedName: String):Boolean = {
+    for(i<-allOperations){
+      if(i == wantedName)
+        return true
+    }
+    false
   }
 }

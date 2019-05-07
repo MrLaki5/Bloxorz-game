@@ -1,4 +1,7 @@
+package mapTools
+
 import board._
+
 import scala.collection.mutable
 
 
