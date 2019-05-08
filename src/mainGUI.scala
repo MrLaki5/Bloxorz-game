@@ -22,6 +22,9 @@ object mainGUI extends SimpleSwingApplication {
   var chosenOperations = mutable.ListBuffer[String]()
   val sequenceOperations = mutable.ListBuffer[SequenceOp]()
   var argumentsOperations = mutable.ListBuffer[Int]()
+  val allOperationsComposite = mutable.ListBuffer[String]()
+  val compositeOperations = mutable.ListBuffer[(String, (Int, Int, BoardType) => (Int, Int, Int, Int))]()
+  var isComposite = true
 
 
   def top= new MainFrame {
@@ -259,6 +262,18 @@ object mainGUI extends SimpleSwingApplication {
       background = Color.red
       borderPainted = true
     }
+    val newMapCreateCompositeButton = new Button {
+      text = "Mk composite"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
+    val newMapUseCompositeButton = new Button {
+      text = "Use composite"
+      foreground = Color.blue
+      background = Color.red
+      borderPainted = true
+    }
     //TODO add left operations
     val newMapSaveButton = new Button {
       text = "Save"
@@ -288,6 +303,8 @@ object mainGUI extends SimpleSwingApplication {
       contents += newMapRemoveNSpecialButton
       contents += newMapCreateSequenceButton
       contents += newMapUseSequenceButton
+      contents += newMapCreateCompositeButton
+      contents += newMapUseCompositeButton
       contents += newMapSaveButton
       contents += newMapCancelButton
     }
@@ -308,6 +325,8 @@ object mainGUI extends SimpleSwingApplication {
     listenTo(newMapSaveButton)
     listenTo(newMapCreateSequenceButton)
     listenTo(newMapUseSequenceButton)
+    listenTo(newMapCreateCompositeButton)
+    listenTo(newMapUseCompositeButton)
     // Remove N special menu
     val newMapRmNRemoveButton = new Button {
       text = "Remove"
@@ -346,6 +365,20 @@ object mainGUI extends SimpleSwingApplication {
     allOperations += "invert"
     allOperations += "rm all special"
     allOperations += "filter"
+
+    allOperationsComposite += "move left"
+    allOperationsComposite += "move right"
+    allOperationsComposite += "move down"
+    allOperationsComposite += "move up"
+    allOperationsComposite += "add block"
+    allOperationsComposite += "rm block"
+    allOperationsComposite += "add special"
+    allOperationsComposite += "rm special"
+    allOperationsComposite += "put finish"
+    allOperationsComposite += "put start"
+    allOperationsComposite += "invert"
+    allOperationsComposite += "rm all special"
+    allOperationsComposite += "filter"
     var opSeqAllPossibleItemsList = new swing.ListView[String](allOperations)
     var opSeqChosenItemsList = new swing.ListView[String](chosenOperations)
     val opSeqOperationName = new TextField()
@@ -662,7 +695,23 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == newMapCreateSequenceButton =>
         chosenOperations.clear()
         argumentsOperations.clear()
+        isComposite = false
         opSeqAllPossibleItemsList = new swing.ListView[String](allOperations)
+        opSeqChosenItemsList = new swing.ListView[String](chosenOperations)
+        opSeqOperationName.text = ""
+        opSeqOperationArg.text = ""
+        opSeqGrid =  new GridPanel(1, 3) {
+          contents += opSeqAllPossibleItemsList
+          contents += opSeqButtonsGrid
+          contents += opSeqChosenItemsList
+        }
+        contents = opSeqGrid
+        opSeqGrid.repaint()
+      case ButtonClicked(component) if component == newMapCreateCompositeButton =>
+        chosenOperations.clear()
+        argumentsOperations.clear()
+        isComposite = true
+        opSeqAllPossibleItemsList = new swing.ListView[String](allOperationsComposite)
         opSeqChosenItemsList = new swing.ListView[String](chosenOperations)
         opSeqOperationName.text = ""
         opSeqOperationArg.text = ""
@@ -679,8 +728,9 @@ object mainGUI extends SimpleSwingApplication {
           layout(newMapButtonsGrid) = BorderPanel.Position.South
         }
       case ButtonClicked(component) if component == opSeqAddOpButton =>
-        if(opSeqAllPossibleItemsList.selection.anchorIndex >= 0 && opSeqAllPossibleItemsList.selection.anchorIndex < allOperations.size) {
-          val currOperation = allOperations(opSeqAllPossibleItemsList.selection.anchorIndex)
+        val useAllOperations = if(isComposite) allOperationsComposite else allOperations
+        if(opSeqAllPossibleItemsList.selection.anchorIndex >= 0 && opSeqAllPossibleItemsList.selection.anchorIndex < useAllOperations.size) {
+          val currOperation = useAllOperations(opSeqAllPossibleItemsList.selection.anchorIndex)
           if(currOperation == "filter"){
             try{
               argumentsOperations += Integer.parseInt(opSeqOperationArg.text)
@@ -735,14 +785,69 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == opSeqSaveOpButton =>
         if(!opSeqOperationName.text.isEmpty && chosenOperations.size > 1){
           if(!checkNameExists(opSeqOperationName.text)){
-            val sOpj = new SequenceOp(opSeqOperationName.text, chosenOperations, argumentsOperations)
-            chosenOperations = new mutable.ListBuffer[String]()
-            argumentsOperations = new mutable.ListBuffer[Int]()
-            sequenceOperations += sOpj
-            allOperations += opSeqOperationName.text
-            contents = new BorderPanel {
-              layout(canvas) = BorderPanel.Position.Center
-              layout(newMapButtonsGrid) = BorderPanel.Position.South
+            if(!isComposite){
+              val sOpj = new SequenceOp(opSeqOperationName.text, chosenOperations, argumentsOperations)
+              chosenOperations = new mutable.ListBuffer[String]()
+              argumentsOperations = new mutable.ListBuffer[Int]()
+              sequenceOperations += sOpj
+              allOperations += opSeqOperationName.text
+              contents = new BorderPanel {
+                layout(canvas) = BorderPanel.Position.Center
+                layout(newMapButtonsGrid) = BorderPanel.Position.South
+              }
+            }
+            else{
+              chosenOperations = chosenOperations.reverse
+              argumentsOperations = argumentsOperations.reverse
+              var buildFunction: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)] = None
+              var argCnt = 0
+              for(operation <- chosenOperations){
+                operation match {
+                  case "move left" =>
+                    buildFunction = Some(mapEditing.move(buildFunction)('l')(_, _, _))
+                  case "move right" =>
+                    buildFunction = Some(mapEditing.move(buildFunction)('r')(_, _, _))
+                  case "move up" =>
+                    buildFunction = Some(mapEditing.move(buildFunction)('u')(_, _, _))
+                  case "move down" =>
+                    buildFunction = Some(mapEditing.move(buildFunction)('d')(_, _, _))
+                  case "add block" =>
+                    buildFunction = Some(mapEditing.addBlock(buildFunction)(_, _, _))
+                  case "rm block" =>
+                    buildFunction = Some(mapEditing.removeBlock(buildFunction)(_, _, _))
+                  case "add special" =>
+                    buildFunction = Some(mapEditing.addSpecial(buildFunction)(_, _, _))
+                  case "rm special" =>
+                    buildFunction = Some(mapEditing.removeSpecial(buildFunction)(_, _, _))
+                  case "put start" =>
+                    buildFunction = Some(mapEditing.changeStart(buildFunction)(_, _, _))
+                  case "put finish" =>
+                    buildFunction = Some(mapEditing.changeFinish(buildFunction)(_, _, _))
+                  case "invert" =>
+                    buildFunction = Some(mapEditing.inversion(buildFunction)(_, _, _))
+                  case "rm all special" =>
+                    buildFunction = Some(mapEditing.removeAllSpecial(buildFunction)(_, _, _))
+                  case "filter" =>
+                    buildFunction = Some(mapEditing.filter(buildFunction)(argumentsOperations(argCnt))(_, _, _))
+                    argCnt += 1
+                  case _ =>
+                    for(i <- compositeOperations){
+                      if(i._1 == operation){
+                        val tempF = (x: Int, y: Int, board1: BoardType) => {val pos = i._2(x, y, board1); buildFunction.get.apply(pos._1, pos._3, board1) }
+                        buildFunction = Some(tempF)
+                      }
+                    }
+                }
+              }
+              chosenOperations = new mutable.ListBuffer[String]()
+              argumentsOperations = new mutable.ListBuffer[Int]()
+              val comElem = (opSeqOperationName.text, buildFunction.get)
+              compositeOperations += comElem
+              allOperationsComposite += opSeqOperationName.text
+              contents = new BorderPanel {
+                layout(canvas) = BorderPanel.Position.Center
+                layout(newMapButtonsGrid) = BorderPanel.Position.South
+              }
             }
           }
         }
@@ -894,6 +999,10 @@ object mainGUI extends SimpleSwingApplication {
 
   def checkNameExists(wantedName: String):Boolean = {
     for(i<-allOperations){
+      if(i == wantedName)
+        return true
+    }
+    for(i<-allOperationsComposite){
       if(i == wantedName)
         return true
     }
