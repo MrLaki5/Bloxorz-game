@@ -9,20 +9,21 @@ class MapEditing {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
 
-  def move(direction: Char, x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
-    val res = direction match {
+  def move(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(direction: Char)(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
+    var res = direction match {
       case 'l' => (x, 1, y-1, 1)
       case 'r' => (x, 1, y+1, 1)
       case 'u' => (x-1, 1, y, 1)
       case 'd' => (x+1, 1, y, 1)
       case _ => (-1, 1, -1, 1)
     }
-    if(res._1>=0 && res._1<board.length){
-      if(res._3>=0 && res._3<board.head.length){
-        return res
-      }
+    if(!(res._1>=0 && res._1<board.length && res._3>=0 && res._3<board.head.length)){
+        res = (x, 1, y, 1)
     }
-    (x, 1,y, 1)
+    nextF match {
+      case Some(fun) => fun(res._1, res._3, board)
+      case None => (res._1, 1, res._3, 1)
+    }
   }
 
   def checkIfSpecific(x: Int, y: Int, board: BoardType, filedType: Char): Boolean = {
@@ -74,39 +75,55 @@ class MapEditing {
     throw new RuntimeException("No char found on board")
   }
 
-  def removeBlock(x: Int, y: Int, board: BoardType): Unit = {
+  def removeBlock(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(isBlockOnEdge(x,y, board)){
       board(x).remove(y)
       board(x).insert(y, new Empty())
       board(x)(y).setStep(true)
     }
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
 
-  def addBlock(x: Int, y: Int, board: BoardType): Unit = {
+  def addBlock(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(isBlockableEdge(x, y, board)){
       board(x).remove(y)
       board(x).insert(y, new Block())
       board(x)(y).setStep(true)
     }
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
 
-  def addSpecial(x: Int, y: Int, board: BoardType): Unit = {
+  def addSpecial(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(board(x)(y).getSign() == 'O'){
       board(x).remove(y)
       board(x).insert(y, new Plate())
       board(x)(y).setStep(true)
     }
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
 
-  def removeSpecial(x: Int, y: Int, board: BoardType): Unit = {
+  def removeSpecial(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(board(x)(y).getSign() == '.'){
       board(x).remove(y)
       board(x).insert(y, new Block())
       board(x)(y).setStep(true)
     }
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
 
-  def changeStart(x: Int, y: Int, board: BoardType): Unit = {
+  def changeStart(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(board(x)(y).getSign() == 'O' || board(x)(y).getSign() == '.'){
       val old_st = findSpecificPosition(board, 'S')
       board(old_st._1).remove(old_st._2)
@@ -115,9 +132,13 @@ class MapEditing {
       board(x).insert(y, new Start())
       board(x)(y).setStep(true)
     }
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
 
-  def changeFinish(x: Int, y: Int, board: BoardType): Unit = {
+  def changeFinish(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(board(x)(y).getSign() == 'O' || board(x)(y).getSign() == '.'){
       val old_st = findSpecificPosition(board, 'T')
       board(old_st._1).remove(old_st._2)
@@ -126,18 +147,26 @@ class MapEditing {
       board(x).insert(y, new Finish())
       board(x)(y).setStep(true)
     }
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
 
-  def inversion(board: BoardType): Unit = {
+  def inversion(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     val old_st = findSpecificPosition(board, 'S')
     val old_fin = findSpecificPosition(board, 'T')
     board(old_st._1).remove(old_st._2)
     board(old_st._1).insert(old_st._2, new Finish())
     board(old_fin._1).remove(old_fin._2)
     board(old_fin._1).insert(old_fin._2, new Start())
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
 
-  def removeAllSpecial(board: BoardType): Unit = {
+  def removeAllSpecial(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     for(i <- board.indices) {
       for (j <- board(i).indices) {
         if (board(i)(j).getSign() == '.') {
@@ -146,9 +175,13 @@ class MapEditing {
         }
       }
     }
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
 
-  def filter(x: Int, y: Int, n: Int, board: BoardType): Unit = {
+  def filter(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(n: Int)(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     for(i <- board.indices) {
       for (j <- board(i).indices) {
         if (board(i)(j).getSign() == '.') {
@@ -156,11 +189,19 @@ class MapEditing {
             if(i!=x || j!=y) {
               board(x).remove(y)
               board(x).insert(y, new Block())
-              return
+              nextF match {
+                case Some(fun) => fun(x, y, board)
+                case None => (x, 1, y, 1)
+              }
             }
           }
         }
       }
     }
+    nextF match {
+      case Some(fun) => fun(x, y, board)
+      case None => (x, 1, y, 1)
+    }
   }
+
 }

@@ -19,40 +19,40 @@ class SequenceOp(val operationName: String, val operationList: mutable.ListBuffe
       operation match {
         case "move left" =>
           gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          position = mapEditing.move('l', position._1, position._3, board)
+          position = mapEditing.move(None)('l')(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "move right" =>
           gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          position = mapEditing.move('r', position._1, position._3, board)
+          position = mapEditing.move(None)('r')(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "move up" =>
           gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          position = mapEditing.move('u', position._1, position._3, board)
+          position = mapEditing.move(None)('u')(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "move down" =>
           gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          position = mapEditing.move('d', position._1, position._3, board)
+          position = mapEditing.move(None)('d')(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "add block" =>
-          mapEditing.addBlock(position._1, position._3, board)
+          mapEditing.addBlock(None)(position._1, position._3, board)
         case "rm block" =>
-          mapEditing.removeBlock(position._1, position._3, board)
+          mapEditing.removeBlock(None)(position._1, position._3, board)
         case "add special" =>
-          mapEditing.addSpecial(position._1, position._3, board)
+          mapEditing.addSpecial(None)(position._1, position._3, board)
         case "rm special" =>
-          mapEditing.addSpecial(position._1, position._3, board)
+          mapEditing.addSpecial(None)(position._1, position._3, board)
         case "put start" =>
-          mapEditing.changeStart(position._1, position._3, board)
+          mapEditing.changeStart(None)(position._1, position._3, board)
         case "put finish" =>
-          mapEditing.changeFinish(position._1, position._3, board)
+          mapEditing.changeFinish(None)(position._1, position._3, board)
         case "invert" =>
-          mapEditing.inversion(board)
+          mapEditing.inversion(None)(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "rm all special" =>
-          mapEditing.removeAllSpecial(board)
+          mapEditing.removeAllSpecial(None)(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "filter" =>
-          mapEditing.filter(position._1, position._3, argumentsList(argumentNum) ,board)
+          mapEditing.filter(None)(argumentsList(argumentNum))(position._1, position._3 ,board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
           argumentNum += 1
         case _ =>

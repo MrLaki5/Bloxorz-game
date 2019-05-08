@@ -587,41 +587,41 @@ object mainGUI extends SimpleSwingApplication {
           }
         }
         gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-        position = mapEditing.move(moveCh, position._1, position._3, board)
+        position = mapEditing.move(None)(moveCh)(position._1, position._3, board)
         gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapAddBlockButton =>
-        mapEditing.addBlock(position._1, position._3, board)
+        mapEditing.addBlock(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveBlockButton =>
-        mapEditing.removeBlock(position._1, position._3, board)
+        mapEditing.removeBlock(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapAddSpecialButton =>
-        mapEditing.addSpecial(position._1, position._3, board)
+        mapEditing.addSpecial(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveSpecialButton =>
-        mapEditing.removeSpecial(position._1, position._3, board)
+        mapEditing.removeSpecial(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapPutStartButton =>
-        mapEditing.changeStart(position._1, position._3, board)
+        mapEditing.changeStart(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapPutFinishButton =>
-        mapEditing.changeFinish(position._1, position._3, board)
+        mapEditing.changeFinish(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapInvertButton =>
-        mapEditing.inversion(board)
+        mapEditing.inversion(None)(position._1, position._3, board)
         gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveAllSpecialButton =>
-        mapEditing.removeAllSpecial(board)
+        mapEditing.removeAllSpecial(None)(position._1, position._3, board)
         gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
@@ -639,7 +639,7 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == newMapRmNRemoveButton =>
         try{
           val num = Integer.parseInt(newMapRmNNumber.text)
-          mapEditing.filter(position._1, position._3, num, board)
+          mapEditing.filter(None)(num)(position._1, position._3, board)
           contents = new BorderPanel {
             layout(canvas) = BorderPanel.Position.Center
             layout(newMapButtonsGrid) = BorderPanel.Position.South
