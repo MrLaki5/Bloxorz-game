@@ -856,20 +856,45 @@ object mainGUI extends SimpleSwingApplication {
         for(i<-sequenceOperations){
           opNames += i.operationName
         }
+        isComposite = false
+        useSeqCommandsList = new swing.ListView[String](opNames)
+        contents = new BorderPanel {
+          layout(useSeqCommandsList) = BorderPanel.Position.Center
+          layout(useSeqGridButton) = BorderPanel.Position.South
+        }
+      case ButtonClicked(component) if component == newMapUseCompositeButton =>
+        val opNames = new mutable.ListBuffer[String]()
+        for(i<-compositeOperations){
+          opNames += i._1
+        }
+        isComposite = true
         useSeqCommandsList = new swing.ListView[String](opNames)
         contents = new BorderPanel {
           layout(useSeqCommandsList) = BorderPanel.Position.Center
           layout(useSeqGridButton) = BorderPanel.Position.South
         }
       case ButtonClicked(component) if component == useSeqActivateButton =>
-        if(useSeqCommandsList.selection.anchorIndex >= 0 && useSeqCommandsList.selection.anchorIndex < sequenceOperations.size){
-          position = sequenceOperations(useSeqCommandsList.selection.anchorIndex).doOperation(position, board, sequenceOperations)
-          contents = new BorderPanel {
-            layout(canvas) = BorderPanel.Position.Center
-            layout(newMapButtonsGrid) = BorderPanel.Position.South
+        if(!isComposite){
+          if(useSeqCommandsList.selection.anchorIndex >= 0 && useSeqCommandsList.selection.anchorIndex < sequenceOperations.size){
+            position = sequenceOperations(useSeqCommandsList.selection.anchorIndex).doOperation(position, board, sequenceOperations)
+            contents = new BorderPanel {
+              layout(canvas) = BorderPanel.Position.Center
+              layout(newMapButtonsGrid) = BorderPanel.Position.South
+            }
+            mapEditActivateButtons()
+            canvas.setBoard(board)
           }
-          mapEditActivateButtons()
-          canvas.setBoard(board)
+        }
+        else{
+          if(useSeqCommandsList.selection.anchorIndex >= 0 && useSeqCommandsList.selection.anchorIndex < compositeOperations.size){
+            position = compositeOperations(useSeqCommandsList.selection.anchorIndex)._2.apply(position._1, position._3, board)
+            contents = new BorderPanel {
+              layout(canvas) = BorderPanel.Position.Center
+              layout(newMapButtonsGrid) = BorderPanel.Position.South
+            }
+            mapEditActivateButtons()
+            canvas.setBoard(board)
+          }
         }
     }
 
