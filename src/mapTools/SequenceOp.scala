@@ -19,40 +19,40 @@ class SequenceOp(val operationName: String, val operationList: mutable.ListBuffe
       operation match {
         case "move left" =>
           gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          position = mapEditing.move(None)('l')(position._1, position._3, board)
+          position = mapEditing.move(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))('l')(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "move right" =>
           gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          position = mapEditing.move(None)('r')(position._1, position._3, board)
+          position = mapEditing.move(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))('r')(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "move up" =>
           gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          position = mapEditing.move(None)('u')(position._1, position._3, board)
+          position = mapEditing.move(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))('u')(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "move down" =>
           gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          position = mapEditing.move(None)('d')(position._1, position._3, board)
+          position = mapEditing.move(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))('d')(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "add block" =>
-          mapEditing.addBlock(None)(position._1, position._3, board)
+          mapEditing.addBlock(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
         case "rm block" =>
-          mapEditing.removeBlock(None)(position._1, position._3, board)
+          mapEditing.removeBlock(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
         case "add special" =>
-          mapEditing.addSpecial(None)(position._1, position._3, board)
+          mapEditing.addSpecial(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
         case "rm special" =>
-          mapEditing.addSpecial(None)(position._1, position._3, board)
+          mapEditing.addSpecial(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
         case "put start" =>
-          mapEditing.changeStart(None)(position._1, position._3, board)
+          mapEditing.changeStart(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
         case "put finish" =>
-          mapEditing.changeFinish(None)(position._1, position._3, board)
+          mapEditing.changeFinish(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
         case "invert" =>
-          mapEditing.inversion(None)(position._1, position._3, board)
+          mapEditing.inversion(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "rm all special" =>
-          mapEditing.removeAllSpecial(None)(position._1, position._3, board)
+          mapEditing.removeAllSpecial(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         case "filter" =>
-          mapEditing.filter(None)(argumentsList(argumentNum))(position._1, position._3 ,board)
+          mapEditing.filter(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(argumentsList(argumentNum))(position._1, position._3 ,board)
           gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
           argumentNum += 1
         case _ =>
