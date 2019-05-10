@@ -836,7 +836,7 @@ object mainGUI extends SimpleSwingApplication {
                   case _ =>
                     for(i <- compositeOperations){
                       if(i._1 == operation){
-                        val tempF = (x: Int, y: Int, board1: BoardType) => {val pos = i._2(x, y, board1); buildFunctionArr(opCnt).get.apply(pos._1, pos._3, board1) }
+                        val tempF = (x: Int, y: Int, board1: BoardType) => {val pos = i._2(x, y, board1); buildFunctionArr(cur_opCnt).get.apply(pos._1, pos._3, board1) }
                         buildFunctionArr(opCnt+1) = Some(tempF)
                       }
                     }
