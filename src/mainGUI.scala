@@ -620,41 +620,41 @@ object mainGUI extends SimpleSwingApplication {
           }
         }
         gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-        position = mapEditing.move(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(moveCh)(position._1, position._3, board)
+        position = mapEditing.move(None)(moveCh)(position._1, position._3, board)
         gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapAddBlockButton =>
-        mapEditing.addBlock(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
+        mapEditing.addBlock(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveBlockButton =>
-        mapEditing.removeBlock(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
+        mapEditing.removeBlock(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapAddSpecialButton =>
-        mapEditing.addSpecial(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
+        mapEditing.addSpecial(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveSpecialButton =>
-        mapEditing.removeSpecial(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
+        mapEditing.removeSpecial(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapPutStartButton =>
-        mapEditing.changeStart(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
+        mapEditing.changeStart(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapPutFinishButton =>
-        mapEditing.changeFinish(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
+        mapEditing.changeFinish(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapInvertButton =>
-        mapEditing.inversion(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
+        mapEditing.inversion(None)(position._1, position._3, board)
         gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveAllSpecialButton =>
-        mapEditing.removeAllSpecial(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(position._1, position._3, board)
+        mapEditing.removeAllSpecial(None)(position._1, position._3, board)
         gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
@@ -672,7 +672,7 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == newMapRmNRemoveButton =>
         try{
           val num = Integer.parseInt(newMapRmNNumber.text)
-          mapEditing.filter(0, Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](None))(num)(position._1, position._3, board)
+          mapEditing.filter(None)(num)(position._1, position._3, board)
           contents = new BorderPanel {
             layout(canvas) = BorderPanel.Position.Center
             layout(newMapButtonsGrid) = BorderPanel.Position.South
@@ -799,53 +799,52 @@ object mainGUI extends SimpleSwingApplication {
             else{
               chosenOperations = chosenOperations.reverse
               argumentsOperations = argumentsOperations.reverse
-              val buildFunctionArr: Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]] = new Array[Option[(Int, Int, BoardType) => (Int, Int, Int, Int)]](chosenOperations.size+1)
+              var buildFunction: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)] = None
               var argCnt = 0
-              var opCnt = 0
-              buildFunctionArr(opCnt) = None
               for(operation <- chosenOperations){
-                val cur_opCnt = opCnt
+                val cur_operation = buildFunction
                 operation match {
                   case "move left" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.move(cur_opCnt, buildFunctionArr)('l')(_, _, _))
+                    buildFunction = Some(mapEditing.move(cur_operation)('l')(_, _, _))
                   case "move right" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.move(cur_opCnt, buildFunctionArr)('r')(_, _, _))
+                    buildFunction = Some(mapEditing.move(cur_operation)('r')(_, _, _))
                   case "move up" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.move(cur_opCnt, buildFunctionArr)('u')(_, _, _))
+                    buildFunction = Some(mapEditing.move(cur_operation)('u')(_, _, _))
                   case "move down" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.move(cur_opCnt, buildFunctionArr)('d')(_, _, _))
+                    buildFunction = Some(mapEditing.move(cur_operation)('d')(_, _, _))
                   case "add block" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.addBlock(cur_opCnt, buildFunctionArr)(_, _, _))
+                    buildFunction = Some(mapEditing.addBlock(cur_operation)(_, _, _))
                   case "rm block" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.removeBlock(cur_opCnt, buildFunctionArr)(_, _, _))
+                    buildFunction = Some(mapEditing.removeBlock(cur_operation)(_, _, _))
                   case "add special" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.addSpecial(cur_opCnt, buildFunctionArr)(_, _, _))
+                    buildFunction = Some(mapEditing.addSpecial(cur_operation)(_, _, _))
                   case "rm special" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.removeSpecial(cur_opCnt, buildFunctionArr)(_, _, _))
+                    buildFunction = Some(mapEditing.removeSpecial(cur_operation)(_, _, _))
                   case "put start" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.changeStart(cur_opCnt, buildFunctionArr)(_, _, _))
+                    buildFunction = Some(mapEditing.changeStart(cur_operation)(_, _, _))
                   case "put finish" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.changeFinish(cur_opCnt, buildFunctionArr)(_, _, _))
+                    buildFunction = Some(mapEditing.changeFinish(cur_operation)(_, _, _))
                   case "invert" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.inversion(cur_opCnt, buildFunctionArr)(_, _, _))
+                    buildFunction = Some(mapEditing.inversion(cur_operation)(_, _, _))
                   case "rm all special" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.removeAllSpecial(cur_opCnt, buildFunctionArr)(_, _, _))
+                    buildFunction = Some(mapEditing.removeAllSpecial(cur_operation)(_, _, _))
                   case "filter" =>
-                    buildFunctionArr(opCnt+1) = Some(mapEditing.filter(cur_opCnt, buildFunctionArr)(argumentsOperations(argCnt))(_, _, _))
+                    val currArgCnt = argCnt
+                    val argumentValue = argumentsOperations(currArgCnt)
+                    buildFunction = Some(mapEditing.filter(cur_operation)(argumentValue)(_, _, _))
                     argCnt += 1
                   case _ =>
                     for(i <- compositeOperations){
                       if(i._1 == operation){
-                        val tempF = (x: Int, y: Int, board1: BoardType) => {val pos = i._2(x, y, board1); buildFunctionArr(cur_opCnt).get.apply(pos._1, pos._3, board1) }
-                        buildFunctionArr(opCnt+1) = Some(tempF)
+                        val tempF = (x: Int, y: Int, board1: BoardType) => {val pos = i._2(x, y, board1); cur_operation.get.apply(pos._1, pos._3, board1) }
+                        buildFunction = Some(tempF)
                       }
                     }
                 }
-                opCnt += 1
               }
               chosenOperations = new mutable.ListBuffer[String]()
               argumentsOperations = new mutable.ListBuffer[Int]()
-              val comElem = (opSeqOperationName.text, buildFunctionArr(opCnt).get)
+              val comElem = (opSeqOperationName.text, buildFunction.get)
               compositeOperations += comElem
               allOperationsComposite += opSeqOperationName.text
               contents = new BorderPanel {
