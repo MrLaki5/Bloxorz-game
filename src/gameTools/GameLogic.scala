@@ -8,7 +8,7 @@ import scala.collection.mutable
 import scala.io.Source
 
 
-class GameLogic {
+object GameLogic {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
 

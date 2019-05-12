@@ -13,8 +13,6 @@ import scala.swing.{BorderPanel, Button, Component, Dialog, Dimension, FileChoos
 object mainGUI extends SimpleSwingApplication {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
-  val gameLogic = new GameLogic()
-  val mapEditing = new MapEditing()
   var board: BoardType = _
   var position: (Int, Int, Int, Int) = _
   val moveBuffer = mutable.ListBuffer[String]()
@@ -457,9 +455,9 @@ object mainGUI extends SimpleSwingApplication {
         val fileName = chooseFile()
         if(fileName != ""){
           try{
-            board = gameLogic.loadBoardFromFile(fileName)
-            position = gameLogic.findStartPosition(board)
-            gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+            board = GameLogic.loadBoardFromFile(fileName)
+            position = GameLogic.findStartPosition(board)
+            GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
             contents = new BorderPanel {
               layout(canvas) = BorderPanel.Position.Center
               layout(gameButtonsGrid) = BorderPanel.Position.South
@@ -488,9 +486,9 @@ object mainGUI extends SimpleSwingApplication {
             }
           }
         }
-        gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-        position = gameLogic.move(2)(moveCh, position._1, position._2, position._3, position._4)
-        val isMoveOk = gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+        GameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
+        position = GameLogic.move(2)(moveCh, position._1, position._2, position._3, position._4)
+        val isMoveOk = GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         if(!isMoveOk){
           labelFin.text = "You lose!"
           contents = new BorderPanel {
@@ -499,7 +497,7 @@ object mainGUI extends SimpleSwingApplication {
           }
         }
         canvas.setBoard(board)
-        val state = gameLogic.afterMoveLogic(board, position._1, position._2, position._3, position._4)
+        val state = GameLogic.afterMoveLogic(board, position._1, position._2, position._3, position._4)
         if(state==2){
           labelFin.text = "You lose!"
           contents = new BorderPanel {
@@ -560,7 +558,7 @@ object mainGUI extends SimpleSwingApplication {
         val fileName = chooseFile()
         if(fileName != ""){
           try{
-            board = gameLogic.loadBoardFromFile(fileName)
+            board = GameLogic.loadBoardFromFile(fileName)
             moveSequenceGenerateButton.enabled = true
             moveSequenceStatus.text = ""
             contents = moveSequenceGrid
@@ -573,10 +571,10 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == moveSequenceGenerateButton =>
         val fileName = saveFile()
         if(fileName != ""){
-          val retMoves = gameLogic.calculateWinMove(board)
+          val retMoves = GameLogic.calculateWinMove(board)
           moveSequenceGenerateButton.enabled = false
           if (retMoves != "") {
-            gameLogic.saveMovesToFile(fileName, retMoves)
+            GameLogic.saveMovesToFile(fileName, retMoves)
             moveSequenceStatus.text = "Moves calculated: " + retMoves
           }
           else{
@@ -587,9 +585,9 @@ object mainGUI extends SimpleSwingApplication {
         val fileName = chooseFile()
         if(fileName != ""){
           try{
-            board = gameLogic.loadBoardFromFile(fileName)
-            position = gameLogic.findStartPosition(board)
-            gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+            board = GameLogic.loadBoardFromFile(fileName)
+            position = GameLogic.findStartPosition(board)
+            GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
             mapEditActivateButtons()
             contents = new BorderPanel {
               layout(canvas) = BorderPanel.Position.Center
@@ -619,43 +617,43 @@ object mainGUI extends SimpleSwingApplication {
             }
           }
         }
-        gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-        position = mapEditing.move(None)(moveCh)(position._1, position._3, board)
-        gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+        GameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
+        position = MapEditing.move(None)(moveCh)(position._1, position._3, board)
+        GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapAddBlockButton =>
-        mapEditing.addBlock(None)(position._1, position._3, board)
+        MapEditing.addBlock(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveBlockButton =>
-        mapEditing.removeBlock(None)(position._1, position._3, board)
+        MapEditing.removeBlock(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapAddSpecialButton =>
-        mapEditing.addSpecial(None)(position._1, position._3, board)
+        MapEditing.addSpecial(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveSpecialButton =>
-        mapEditing.removeSpecial(None)(position._1, position._3, board)
+        MapEditing.removeSpecial(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapPutStartButton =>
-        mapEditing.changeStart(None)(position._1, position._3, board)
+        MapEditing.changeStart(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapPutFinishButton =>
-        mapEditing.changeFinish(None)(position._1, position._3, board)
+        MapEditing.changeFinish(None)(position._1, position._3, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapInvertButton =>
-        mapEditing.inversion(None)(position._1, position._3, board)
-        gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+        MapEditing.inversion(None)(position._1, position._3, board)
+        GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveAllSpecialButton =>
-        mapEditing.removeAllSpecial(None)(position._1, position._3, board)
-        gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+        MapEditing.removeAllSpecial(None)(position._1, position._3, board)
+        GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         canvas.setBoard(board)
         mapEditActivateButtons()
       case ButtonClicked(component) if component == newMapRemoveNSpecialButton =>
@@ -672,12 +670,12 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == newMapRmNRemoveButton =>
         try{
           val num = Integer.parseInt(newMapRmNNumber.text)
-          mapEditing.filter(None)(num)(position._1, position._3, board)
+          MapEditing.filter(None)(num)(position._1, position._3, board)
           contents = new BorderPanel {
             layout(canvas) = BorderPanel.Position.Center
             layout(newMapButtonsGrid) = BorderPanel.Position.South
           }
-          gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+          GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
           mapEditActivateButtons()
           canvas.setBoard(board)
         }
@@ -687,8 +685,8 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == newMapSaveButton =>
         val fileName = saveFile()
         if(fileName != ""){
-          gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-          gameLogic.saveBoardToFile(fileName, board)
+          GameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
+          GameLogic.saveBoardToFile(fileName, board)
           contents = mainMenuGrid
           mainMenuGrid.repaint()
         }
@@ -805,33 +803,33 @@ object mainGUI extends SimpleSwingApplication {
                 val cur_operation = buildFunction
                 operation match {
                   case "move left" =>
-                    buildFunction = Some(mapEditing.move(cur_operation)('l')(_, _, _))
+                    buildFunction = Some(MapEditing.move(cur_operation)('l')(_, _, _))
                   case "move right" =>
-                    buildFunction = Some(mapEditing.move(cur_operation)('r')(_, _, _))
+                    buildFunction = Some(MapEditing.move(cur_operation)('r')(_, _, _))
                   case "move up" =>
-                    buildFunction = Some(mapEditing.move(cur_operation)('u')(_, _, _))
+                    buildFunction = Some(MapEditing.move(cur_operation)('u')(_, _, _))
                   case "move down" =>
-                    buildFunction = Some(mapEditing.move(cur_operation)('d')(_, _, _))
+                    buildFunction = Some(MapEditing.move(cur_operation)('d')(_, _, _))
                   case "add block" =>
-                    buildFunction = Some(mapEditing.addBlock(cur_operation)(_, _, _))
+                    buildFunction = Some(MapEditing.addBlock(cur_operation)(_, _, _))
                   case "rm block" =>
-                    buildFunction = Some(mapEditing.removeBlock(cur_operation)(_, _, _))
+                    buildFunction = Some(MapEditing.removeBlock(cur_operation)(_, _, _))
                   case "add special" =>
-                    buildFunction = Some(mapEditing.addSpecial(cur_operation)(_, _, _))
+                    buildFunction = Some(MapEditing.addSpecial(cur_operation)(_, _, _))
                   case "rm special" =>
-                    buildFunction = Some(mapEditing.removeSpecial(cur_operation)(_, _, _))
+                    buildFunction = Some(MapEditing.removeSpecial(cur_operation)(_, _, _))
                   case "put start" =>
-                    buildFunction = Some(mapEditing.changeStart(cur_operation)(_, _, _))
+                    buildFunction = Some(MapEditing.changeStart(cur_operation)(_, _, _))
                   case "put finish" =>
-                    buildFunction = Some(mapEditing.changeFinish(cur_operation)(_, _, _))
+                    buildFunction = Some(MapEditing.changeFinish(cur_operation)(_, _, _))
                   case "invert" =>
-                    buildFunction = Some(mapEditing.inversion(cur_operation)(_, _, _))
+                    buildFunction = Some(MapEditing.inversion(cur_operation)(_, _, _))
                   case "rm all special" =>
-                    buildFunction = Some(mapEditing.removeAllSpecial(cur_operation)(_, _, _))
+                    buildFunction = Some(MapEditing.removeAllSpecial(cur_operation)(_, _, _))
                   case "filter" =>
                     val currArgCnt = argCnt
                     val argumentValue = argumentsOperations(currArgCnt)
-                    buildFunction = Some(mapEditing.filter(cur_operation)(argumentValue)(_, _, _))
+                    buildFunction = Some(MapEditing.filter(cur_operation)(argumentValue)(_, _, _))
                     argCnt += 1
                   case _ =>
                     for(i <- compositeOperations){
@@ -891,8 +889,8 @@ object mainGUI extends SimpleSwingApplication {
         else{
           if(useSeqCommandsList.selection.anchorIndex >= 0 && useSeqCommandsList.selection.anchorIndex < compositeOperations.size){
             position = compositeOperations(useSeqCommandsList.selection.anchorIndex)._2.apply(position._1, position._3, board)
-            mapEditing.removeCursor(board)
-            gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+            MapEditing.removeCursor(board)
+            GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
             contents = new BorderPanel {
               layout(canvas) = BorderPanel.Position.Center
               layout(newMapButtonsGrid) = BorderPanel.Position.South
@@ -944,8 +942,8 @@ object mainGUI extends SimpleSwingApplication {
     }
 
     def mapEditActivateButtons(): Unit = {
-      val isOnEdge = mapEditing.isBlockableEdge(position._1, position._3, board)
-      val isBlockEdge = mapEditing.isBlockOnEdge(position._1, position._3, board)
+      val isOnEdge = MapEditing.isBlockableEdge(position._1, position._3, board)
+      val isBlockEdge = MapEditing.isBlockOnEdge(position._1, position._3, board)
       val isSpecial = board(position._1)(position._3).getSign() == '.'
       val isBlock = board(position._1)(position._3).getSign() == 'O'
       newMapAddBlockButton.enabled = isOnEdge
@@ -986,13 +984,13 @@ object mainGUI extends SimpleSwingApplication {
           return
         }
         val tempCommand = moveBuffer.remove(0)
-        gameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
-        position = gameLogic.move(2)(tempCommand.charAt(0), position._1, position._2, position._3, position._4)
-        val isMoveOk = gameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
+        GameLogic.movementWriter(false, position._1, position._2, position._3, position._4, board)
+        position = GameLogic.move(2)(tempCommand.charAt(0), position._1, position._2, position._3, position._4)
+        val isMoveOk = GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
         var state = 2
         if(isMoveOk){
           localCanvas.setBoard(board)
-          state = gameLogic.afterMoveLogic(board, position._1, position._2, position._3, position._4)
+          state = GameLogic.afterMoveLogic(board, position._1, position._2, position._3, position._4)
         }
         localFinFun(state)
         if(state==3){

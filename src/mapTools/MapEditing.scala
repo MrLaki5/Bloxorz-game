@@ -5,7 +5,7 @@ import board._
 import scala.collection.mutable
 
 
-class MapEditing {
+object MapEditing {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
 
