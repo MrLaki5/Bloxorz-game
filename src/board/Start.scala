@@ -1,5 +1,6 @@
 package board
 
+// Class representing start position on board
 class Start  extends Field {
   override def getSign(): Char = { 'S' }
 

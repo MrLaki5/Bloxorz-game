@@ -1,14 +1,15 @@
 package mapTools
 
 import board._
-
 import scala.collection.mutable
 
 
+// Operations used for map editing
 object MapEditing {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
 
+  // Move edit map cursor
   def move(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(direction: Char)(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     var res = direction match {
       case 'l' => (x, 1, y-1, 1)
@@ -26,6 +27,7 @@ object MapEditing {
     }
   }
 
+  // Check if specific filed is of specific type
   def checkIfSpecific(x: Int, y: Int, board: BoardType, filedType: Char): Boolean = {
     if (x < board.length && x >= 0){
       if(y < board(x).length && y>= 0){
@@ -35,6 +37,7 @@ object MapEditing {
     false
   }
 
+  // Check if specific field is block and if it is on the edge
   def isBlockOnEdge(x: Int, y: Int, board: BoardType):Boolean = {
     if(checkIfSpecific(x, y, board, 'O')){
       if(checkIfSpecific(x-1, y, board, '-') || checkIfSpecific(x+1, y, board, '-') || checkIfSpecific(x, y-1, board, '-') || checkIfSpecific(x, y+1, board, '-')){
@@ -44,6 +47,7 @@ object MapEditing {
     false
   }
 
+  // Check if specific field is empty and if it is on edge
   def isBlockableEdge(x: Int, y: Int, board: BoardType):Boolean = {
     if(x!=0 && y!=0 && x!=(board.length-1) && y!=(board(0).length-1)){
       if(checkIfSpecific(x, y, board, '-')){
@@ -64,6 +68,7 @@ object MapEditing {
     false
   }
 
+  // Find first appearance of specific field on board
   def findSpecificPosition(board: BoardType, findChar: Char): (Int, Int) = {
     for(i <- board.indices){
       for(j <- board(i).indices){
@@ -75,6 +80,7 @@ object MapEditing {
     throw new RuntimeException("No char found on board")
   }
 
+  // Remove block that is on edge
   def removeBlock(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(isBlockOnEdge(x,y, board)){
       board(x).remove(y)
@@ -87,6 +93,7 @@ object MapEditing {
     }
   }
 
+  // Add block to edge of board
   def addBlock(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(isBlockableEdge(x, y, board)){
       board(x).remove(y)
@@ -99,6 +106,7 @@ object MapEditing {
     }
   }
 
+  // If specific field is block type change it to special
   def addSpecial(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(board(x)(y).getSign() == 'O'){
       board(x).remove(y)
@@ -111,6 +119,7 @@ object MapEditing {
     }
   }
 
+  // Remove specific special field and put normal block
   def removeSpecial(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(board(x)(y).getSign() == '.'){
       board(x).remove(y)
@@ -123,6 +132,7 @@ object MapEditing {
     }
   }
 
+  // To specific board field that is block or special put start position
   def changeStart(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(board(x)(y).getSign() == 'O' || board(x)(y).getSign() == '.'){
       val old_st = findSpecificPosition(board, 'S')
@@ -138,6 +148,7 @@ object MapEditing {
     }
   }
 
+  // To specific board field that is block or special put finish position
   def changeFinish(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     if(board(x)(y).getSign() == 'O' || board(x)(y).getSign() == '.'){
       val old_st = findSpecificPosition(board, 'T')
@@ -153,6 +164,7 @@ object MapEditing {
     }
   }
 
+  // On board change places of start and finish position
   def inversion(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     val old_st = findSpecificPosition(board, 'S')
     val old_fin = findSpecificPosition(board, 'T')
@@ -166,6 +178,7 @@ object MapEditing {
     }
   }
 
+  // Remove all special field from board
   def removeAllSpecial(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     for(i <- board.indices) {
       for (j <- board(i).indices) {
@@ -181,6 +194,7 @@ object MapEditing {
     }
   }
 
+  // If specific field is special if in range of n fields there is another special field change specific to normal block
   def filter(nextF: Option[(Int, Int, BoardType) => (Int, Int, Int, Int)])(n: Int)(x: Int, y: Int, board: BoardType): (Int, Int, Int, Int) = {
     for(i <- board.indices) {
       for (j <- board(i).indices) {
@@ -204,6 +218,7 @@ object MapEditing {
     }
   }
 
+  // Remove player cursor from board
   def removeCursor(board: BoardType): Unit ={
     for(i <- board){
       for(j <- i){

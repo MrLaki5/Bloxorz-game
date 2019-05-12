@@ -1,5 +1,6 @@
 package board
 
+// Class representing special block on board
 class Plate  extends Field {
   override def getSign(): Char = { '.' }
 

@@ -1,5 +1,6 @@
 package board
 
+// Class representing empty place on board
 class Empty extends Field {
   override def getSign(): Char = { '-' }
 

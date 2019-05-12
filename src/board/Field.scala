@@ -1,5 +1,6 @@
 package board
 
+// Abstract class representing field of board
 abstract class Field(var step:Boolean = false) {
   def getSign():Char
 

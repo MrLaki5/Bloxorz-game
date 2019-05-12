@@ -1,15 +1,15 @@
 import java.awt.Color
-
 import board.Field
 import gameTools.GameLogic
 import javax.swing.{JFileChooser, JFrame}
 import mapTools.{MapEditing, SequenceOp}
-
 import scala.collection.mutable
 import scala.io.Source
 import scala.swing.event.ButtonClicked
-import scala.swing.{BorderPanel, Button, Component, Dialog, Dimension, FileChooser, Frame, GridPanel, Label, MainFrame, Panel, SimpleSwingApplication, TextComponent, TextField}
+import scala.swing.{BorderPanel, Button, Component, Dimension, GridPanel, Label, MainFrame, SimpleSwingApplication, TextField}
 
+
+//Game GUI part
 object mainGUI extends SimpleSwingApplication {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
@@ -23,15 +23,19 @@ object mainGUI extends SimpleSwingApplication {
   val allOperationsComposite = mutable.ListBuffer[String]()
   val compositeOperations = mutable.ListBuffer[(String, (Int, Int, BoardType) => (Int, Int, Int, Int))]()
   var isComposite = true
+  val moveRun = new moveRunnable()
+  var moveThread: Thread = null
+  var threadIsActive = false
+  val threadSemaphore = "threadSem"
 
-
+  // Used for window setup
   def top= new MainFrame {
+    // Window attributes
     title = "Bloxorz-game"
     preferredSize = new Dimension(640, 480)
     resizable = false
     peer.setSize(new Dimension(640, 480))
     peer.setLocationRelativeTo(null)
-
     // Main menu items
     val mainMenuStartGameButton = new Button {
       text = "Play"
@@ -272,7 +276,6 @@ object mainGUI extends SimpleSwingApplication {
       background = Color.red
       borderPainted = true
     }
-    //TODO add left operations
     val newMapSaveButton = new Button {
       text = "Save"
       foreground = Color.blue
@@ -338,9 +341,7 @@ object mainGUI extends SimpleSwingApplication {
       background = Color.red
       borderPainted = true
     }
-    val newMapRmNNumber = new TextField{
-
-    }
+    val newMapRmNNumber = new TextField{}
     val newMapRmNGrid =  new GridPanel(2, 2) {
       contents += new Label("Enter number N: ")
       contents += newMapRmNNumber
@@ -363,7 +364,6 @@ object mainGUI extends SimpleSwingApplication {
     allOperations += "invert"
     allOperations += "rm all special"
     allOperations += "filter"
-
     allOperationsComposite += "move left"
     allOperationsComposite += "move right"
     allOperationsComposite += "move down"
@@ -444,9 +444,8 @@ object mainGUI extends SimpleSwingApplication {
     }
     listenTo(useSeqActivateButton)
     listenTo(useSeqCancelButton)
-
+    // Set window context to main menu
     contents = mainMenuGrid
-
     // react to events
     reactions += {
       case ButtonClicked(component: Component) if component == mainMenuExitButton =>
@@ -901,6 +900,7 @@ object mainGUI extends SimpleSwingApplication {
         }
     }
 
+    // Set GUI if game is over or if player has won
     def setState(state: Int): Unit = {
       if(state==2){
         moveBuffer.clear()
@@ -920,6 +920,7 @@ object mainGUI extends SimpleSwingApplication {
       }
     }
 
+    // Activate buttons after move sequence has been played
     def activateButtons(): Unit = {
       gameLeftButton.enabled = true
       gameRightButton.enabled = true
@@ -928,6 +929,7 @@ object mainGUI extends SimpleSwingApplication {
       gameFileButton.enabled = true
     }
 
+    // Close thread that is playing move sequence
     override def closeOperation(): Unit = {
       var threadWasAlive = false
       synchronized(threadSemaphore){
@@ -941,6 +943,7 @@ object mainGUI extends SimpleSwingApplication {
       super.closeOperation()
     }
 
+    // Change usability of map edit buttons depending on current position on map
     def mapEditActivateButtons(): Unit = {
       val isOnEdge = MapEditing.isBlockableEdge(position._1, position._3, board)
       val isBlockEdge = MapEditing.isBlockOnEdge(position._1, position._3, board)
@@ -956,11 +959,8 @@ object mainGUI extends SimpleSwingApplication {
     }
   }
 
-  val moveRun = new moveRunnable()
-  var moveThread: Thread = null
-  var threadIsActive = false
-  val threadSemaphore = "threadSem"
 
+  // Thread used for playing win sequence
   class moveRunnable extends Runnable{
     var localCanvas: BoardCanvas = _
     var localFinFun: Int=>Unit = _
@@ -1003,6 +1003,7 @@ object mainGUI extends SimpleSwingApplication {
     }
   }
 
+  // Function used for choosing file to open
   def chooseFile():String = {
     val chooser = new JFileChooser(".")
     chooser.showOpenDialog(new JFrame())
@@ -1014,6 +1015,7 @@ object mainGUI extends SimpleSwingApplication {
     ""
   }
 
+  // Function used for choosing where to save file
   def saveFile():String = {
     val chooser = new JFileChooser(".")
     chooser.showSaveDialog(new JFrame())
@@ -1025,6 +1027,7 @@ object mainGUI extends SimpleSwingApplication {
     ""
   }
 
+  // Check if name of operation already exists
   def checkNameExists(wantedName: String):Boolean = {
     for(i<-allOperations){
       if(i == wantedName)

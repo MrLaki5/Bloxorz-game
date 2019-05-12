@@ -2,14 +2,15 @@ package mapTools
 
 import board.Field
 import gameTools.GameLogic
-
 import scala.collection.mutable
 
 
+// Class for storing sequence operation
 class SequenceOp(val operationName: String, val operationList: mutable.ListBuffer[String], val argumentsList: mutable.ListBuffer[Int]) {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
 
+  // Do operation sequence
   def doOperation(curr_poss: (Int, Int, Int, Int), board: BoardType, otherSOp: mutable.ListBuffer[SequenceOp]): (Int, Int, Int, Int) = {
     var position = curr_poss
     var argumentNum = 0
@@ -64,6 +65,7 @@ class SequenceOp(val operationName: String, val operationList: mutable.ListBuffe
     position
   }
 
+  // Check name of sequence operation
   def checkName(nameCheck: String): Boolean = {
     nameCheck == operationName
   }

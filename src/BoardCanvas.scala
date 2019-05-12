@@ -1,24 +1,22 @@
 import scala.swing.Panel
 import java.awt.{Color, Graphics2D}
-
 import board.Field
-
 import scala.collection.mutable
 
+
+// Class for drawing board
 class BoardCanvas extends Panel {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
 
   var board: BoardType = _
   val boardSem = "boardSem"
-
   var gameText = ""
 
+  // Board is drawn here
   override def paintComponent(g: Graphics2D) {
-
     // Start by erasing this Canvas
     g.clearRect(0, 0, size.width, size.height)
-
     // Get board for drawing
     var drawBoard: BoardType = null
     var drawText: String = ""
@@ -27,7 +25,6 @@ class BoardCanvas extends Panel {
       drawText = gameText
       1
     }
-
     if(drawBoard != null){
       // Calculate proportion
       val proportion = drawBoard.length/drawBoard.head.length
@@ -95,7 +92,7 @@ class BoardCanvas extends Panel {
     }
   }
 
-  /** Add a "dart" to list of things to display */
+  //Set board before drawing
   def setBoard(curr_board: BoardType) {
     synchronized(boardSem){
       board = curr_board
@@ -105,6 +102,7 @@ class BoardCanvas extends Panel {
     repaint()
   }
 
+  // Set text that is drawn after board
   def setText(text: String): Unit = {
     synchronized(boardSem){
       gameText = text

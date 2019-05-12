@@ -1,13 +1,12 @@
 package gameTools
 
 import java.io.{BufferedWriter, File, FileWriter}
-
 import board._
-
 import scala.collection.mutable
 import scala.io.Source
 
 
+// Logic part that is used for playing the game
 object GameLogic {
 
   type BoardType = mutable.ListBuffer[mutable.ListBuffer[Field]]
@@ -194,6 +193,7 @@ object GameLogic {
     ""
   }
 
+  // Save chosen moves sequence to file
   def saveMovesToFile(fileName: String, movesData: String): Unit = {
     val fileFullName = fileName + ".txt"
     val file = new File(fileFullName)
@@ -205,6 +205,7 @@ object GameLogic {
     bw.close()
   }
 
+  // Save given board to file
   def saveBoardToFile(fileName: String, board: BoardType): Unit = {
     val fileFullName = fileName + ".txt"
     val file = new File(fileFullName)

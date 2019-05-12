@@ -1,5 +1,6 @@
 package board
 
+// Class representing normal block on board
 class Block extends Field {
   override def isWin(): Boolean = { false }
 
