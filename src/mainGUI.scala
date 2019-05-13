@@ -39,26 +39,18 @@ object mainGUI extends SimpleSwingApplication {
     // Main menu items
     val mainMenuStartGameButton = new Button {
       text = "Play"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val mainMenuCalculateButton = new Button {
       text = "Calculate win sequence"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val mainMenuCreateMapButton = new Button {
       text = "Create map"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val mainMenuExitButton = new Button {
       text = "Exit"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val mainMenuGrid =  new GridPanel(4, 3) {
@@ -83,38 +75,26 @@ object mainGUI extends SimpleSwingApplication {
     // Game board items
     val gameLeftButton = new Button {
       text = "Left"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val gameRightButton = new Button {
       text = "Right"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val gameUpButton = new Button {
       text = "Up"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val gameDownButton = new Button {
       text = "Down"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val gameFileButton = new Button {
       text = "File"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val gameQuitButton = new Button {
       text = "Quit"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val gameButtonsGrid =  new GridPanel(1, 6) {
@@ -128,8 +108,6 @@ object mainGUI extends SimpleSwingApplication {
     val canvas = new BoardCanvas
     val gameFinishButton = new Button {
       text = "Main menu"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val labelFin = new Label{
@@ -150,14 +128,10 @@ object mainGUI extends SimpleSwingApplication {
     val moveSequenceStatus = new Label("")
     val moveSequenceGenerateButton = new Button {
       text = "Generate"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val moveSequenceBackButton = new Button {
       text = "Back"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val moveSequenceGrid = new GridPanel(4, 3){
@@ -176,116 +150,78 @@ object mainGUI extends SimpleSwingApplication {
     // Create map items
     val newMapLeftButton = new Button {
       text = "Left"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapRightButton = new Button {
       text = "Right"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapUpButton = new Button {
       text = "Up"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapDownButton = new Button {
       text = "Down"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapAddBlockButton = new Button {
       text = "Add block"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapRemoveBlockButton = new Button {
       text = "Rm block"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapAddSpecialButton = new Button {
       text = "Add special"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapRemoveSpecialButton = new Button {
       text = "Rm special"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapPutStartButton = new Button {
       text = "Put start"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapPutFinishButton = new Button {
       text = "Put finish"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapInvertButton = new Button {
       text = "Invert"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapRemoveAllSpecialButton = new Button {
       text = "Rm all special"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapRemoveNSpecialButton = new Button {
       text = "Filter"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapCreateSequenceButton = new Button {
       text = "Mk sequence"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapUseSequenceButton = new Button {
       text = "Use sequence"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapCreateCompositeButton = new Button {
       text = "Mk composite"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapUseCompositeButton = new Button {
       text = "Use composite"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapSaveButton = new Button {
       text = "Save"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapCancelButton = new Button {
       text = "Cancel"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapButtonsGrid =  new GridPanel(3, 6) {
@@ -331,14 +267,10 @@ object mainGUI extends SimpleSwingApplication {
     // Remove N special menu
     val newMapRmNRemoveButton = new Button {
       text = "Remove"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapRmNCancelButton = new Button {
       text = "Cancel"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val newMapRmNNumber = new TextField{}
@@ -383,26 +315,18 @@ object mainGUI extends SimpleSwingApplication {
     val opSeqOperationArg = new TextField()
     val opSeqAddOpButton = new Button {
       text = ">>"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val opSeqRemoveOpButton = new Button {
       text = "<<"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val opSeqSaveOpButton = new Button {
       text = "Save"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val opSeqCancelButton = new Button {
       text = "Cancel"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val opSeqButtonsGrid = new GridPanel(8, 1){
@@ -428,14 +352,10 @@ object mainGUI extends SimpleSwingApplication {
     var useSeqCommandsList = new swing.ListView[String](chosenOperations)
     val useSeqCancelButton = new Button {
       text = "Cancel"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     val useSeqActivateButton = new Button {
       text = "Use command"
-      foreground = Color.blue
-      background = Color.red
       borderPainted = true
     }
     var useSeqGridButton =  new GridPanel(1, 2) {

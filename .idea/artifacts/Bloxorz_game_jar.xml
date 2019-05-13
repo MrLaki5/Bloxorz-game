@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Bloxorz-game:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Bloxorz_game_jar</output-path>
+    <root id="archive" name="Bloxorz-game.jar">
+      <element id="module-output" name="Bloxorz-game" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/jars/scala-swing_2.12-2.1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.12.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scala-lang/scala-reflect/srcs/scala-reflect-2.12.8-sources.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.12.8-sources.jar" path-in-jar="/" />
+      <element id="library" level="application" name="scala-sdk-2.12.8" />
+      <element id="library" level="project" name="scala-swing_2.12-2.1.1" />
+    </root>
+  </artifact>
+</component>
