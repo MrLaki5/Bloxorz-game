@@ -1,4 +1,3 @@
-import java.awt.Color
 import board.Field
 import gameTools.GameLogic
 import javax.swing.{JFileChooser, JFrame}
@@ -703,7 +702,47 @@ object mainGUI extends SimpleSwingApplication {
         if(!opSeqOperationName.text.isEmpty && chosenOperations.size > 1){
           if(!checkNameExists(opSeqOperationName.text)){
             if(!isComposite){
-              val sOpj = new SequenceOp(opSeqOperationName.text, chosenOperations, argumentsOperations)
+              val chosenOperationFunctions = new mutable.ListBuffer[(Int, Int, BoardType) => (Int, Int, Int, Int)]()
+              var argumentNum = 0
+              for(operation <- chosenOperations){
+                operation match {
+                  case "move left" =>
+                    chosenOperationFunctions += MapEditing.move(None)('l')
+                  case "move right" =>
+                    chosenOperationFunctions += MapEditing.move(None)('r')
+                  case "move up" =>
+                    chosenOperationFunctions += MapEditing.move(None)('u')
+                  case "move down" =>
+                    chosenOperationFunctions += MapEditing.move(None)('d')
+                  case "add block" =>
+                    chosenOperationFunctions += MapEditing.addBlock(None)
+                  case "rm block" =>
+                    chosenOperationFunctions += MapEditing.removeBlock(None)
+                  case "add special" =>
+                    chosenOperationFunctions += MapEditing.addSpecial(None)
+                  case "rm special" =>
+                    chosenOperationFunctions += MapEditing.addSpecial(None)
+                  case "put start" =>
+                    chosenOperationFunctions += MapEditing.changeStart(None)
+                  case "put finish" =>
+                    chosenOperationFunctions += MapEditing.changeFinish(None)
+                  case "invert" =>
+                    chosenOperationFunctions += MapEditing.inversion(None)
+                  case "rm all special" =>
+                    chosenOperationFunctions += MapEditing.removeAllSpecial(None)
+                  case "filter" =>
+                    val curr_arg = argumentsOperations(argumentNum)
+                    chosenOperationFunctions += MapEditing.filter(None)(curr_arg)
+                    argumentNum += 1
+                  case _ =>
+                    for(sOp <- sequenceOperations){
+                      if(sOp.checkName(operation)){
+                        chosenOperationFunctions += sOp.doOperation(sequenceOperations)
+                      }
+                    }
+                }
+              }
+              val sOpj = new SequenceOp(opSeqOperationName.text, chosenOperationFunctions)
               chosenOperations = new mutable.ListBuffer[String]()
               argumentsOperations = new mutable.ListBuffer[Int]()
               sequenceOperations += sOpj
@@ -796,7 +835,9 @@ object mainGUI extends SimpleSwingApplication {
       case ButtonClicked(component) if component == useSeqActivateButton =>
         if(!isComposite){
           if(useSeqCommandsList.selection.anchorIndex >= 0 && useSeqCommandsList.selection.anchorIndex < sequenceOperations.size){
-            position = sequenceOperations(useSeqCommandsList.selection.anchorIndex).doOperation(position, board, sequenceOperations)
+            position = sequenceOperations(useSeqCommandsList.selection.anchorIndex).doOperation(sequenceOperations)(position._1, position._3, board)
+            MapEditing.removeCursor(board)
+            GameLogic.movementWriter(true, position._1, position._2, position._3, position._4, board)
             contents = new BorderPanel {
               layout(canvas) = BorderPanel.Position.Center
               layout(newMapButtonsGrid) = BorderPanel.Position.South
