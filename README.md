@@ -1,6 +1,6 @@
 ## Bloxorz-game:
  
-[Download game v1.0](https://github.com/MrLaki5/Bloxorz-game/releases/download/v1.0/BloxorzGame.zip)
+[Download game for OSX v1.0](https://github.com/MrLaki5/Bloxorz-game/releases/download/v1.0/BloxorzGame.zip)
 
 
 ### Gameplay:
